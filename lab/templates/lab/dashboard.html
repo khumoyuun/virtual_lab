@@ -1,0 +1,251 @@
+{% extends 'lab/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm bg-primary text-white h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="me-3 display-4">⚡</div>
+                <div>
+                    <h6 class="card-title text-uppercase opacity-75 mb-1">Jami Oylik Sarf</h6>
+                    <h2 class="mb-0 fw-bold">{{ total_monthly_kwh }} <span class="fs-5 fw-normal">kVt·soat</span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mt-3 mt-md-0">
+        <div class="card border-0 shadow-sm bg-danger text-white h-100">
+            <div class="card-body d-flex align-items-center">
+                <div class="me-3 display-4">🌍</div>
+                <div>
+                    <h6 class="card-title text-uppercase opacity-75 mb-1">Jami Uglerod Izi (CO2)</h6>
+                    <h2 class="mb-0 fw-bold">{{ total_co2 }} <span class="fs-5 fw-normal">kg</span></h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4 bg-body">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
+            <h5 class="fw-bold mb-0 text-success">📅 Xarajatlar va Sarf Prognozi</h5>
+            <span class="badge bg-warning text-dark fs-6 shadow-sm">Ijtimoiy norma (Differensial tarif)</span>
+        </div>
+
+        <div class="row text-center g-3">
+            <div class="col-6 col-md-3">
+                <div class="p-3 border rounded h-100 bg-body-tertiary">
+                    <h6 class="text-secondary mb-3">1 Oylik</h6>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.m1.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.m1.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <div class="border-top pt-2 mt-2">
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m1.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 border rounded h-100 bg-body-tertiary">
+                    <h6 class="text-secondary mb-3">3 Oylik</h6>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.m3.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.m3.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <div class="border-top pt-2 mt-2">
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m3.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 border rounded h-100 bg-body-tertiary">
+                    <h6 class="text-secondary mb-3">6 Oylik</h6>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.m6.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.m6.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <div class="border-top pt-2 mt-2">
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m6.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 border rounded h-100 bg-body-tertiary border-success">
+                    <h6 class="text-success fw-bold mb-3">1 Yillik</h6>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.y1.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.y1.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <div class="border-top pt-2 mt-2 border-success">
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.y1.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6 mb-3 mb-md-0">
+        <div class="card border-0 shadow-sm h-100 bg-body">
+            <div class="card-body">
+                <h6 class="card-title fw-bold text-center mb-3">Elektr sarfi ulushi (kVt·s)</h6>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="kwhChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm h-100 bg-body">
+            <div class="card-body">
+                <h6 class="card-title fw-bold text-center mb-3">Qurilmalarning CO2 izi (kg)</h6>
+                <div style="position: relative; height: 260px; width: 100%;">
+                    <canvas id="co2Chart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-4 mb-4">
+        <div class="card border-0 shadow-sm bg-body">
+            <div class="card-body">
+                <h5 class="card-title mb-3 text-success fw-bold">➕ Yangi jihoz qo'shish</h5>
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold text-secondary">{{ field.label }}</label>
+                            {{ field }}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-success w-100 mt-2">Hisoblash</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm bg-body">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0 fw-bold">📊 Laboratoriya Natijalari</h5>
+                    {% if records %}
+                        <a href="{% url 'export_csv' %}" class="btn btn-outline-secondary btn-sm">📥 Excel (CSV)</a>
+                    {% endif %}
+                </div>
+
+                {% if records %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Jihoz</th>
+                                    <th>Soni</th>
+                                    <th>Quvvat (1 ta)</th>
+                                    <th>Vaqt</th>
+                                    <th>Oylik sarf</th>
+                                    <th>CO2 Izi</th>
+                                    <th>Amal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in records %}
+                                <tr>
+                                    <td class="fw-bold">{{ item.appliance_name }}</td>
+                                    <td><span class="badge bg-secondary">{{ item.quantity }} ta</span></td>
+                                    <td>{{ item.power_watts }} Vt</td>
+                                    <td>{{ item.hours_per_day }} s/kun</td>
+                                    <td class="text-primary fw-bold">{{ item.monthly_kwh }} kVt·s</td>
+                                    <td class="text-danger fw-bold">{{ item.co2_footprint }} kg</td>
+                                    <td>
+                                        <a href="{% url 'delete_record' item.id %}" class="btn btn-outline-danger btn-sm">❌</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7" class="border-bottom-0 pt-0 pb-3">
+                                        <div class="alert alert-light border-start border-success border-4 py-2 px-3 mb-1 small text-muted bg-body-tertiary">
+                                            💡 <b>Aqlli maslahat:</b> {{ item.auto_tip }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted text-center my-4">Hali hech qanday jihoz kiritilmadi. Hisob-kitobni boshlash uchun chap tomondagi formadan foydalaning.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const labels = {{ chart_labels|safe }};
+    const kwhData = {{ chart_kwh|safe }};
+    const co2Data = {{ chart_co2|safe }};
+
+    if (labels.length > 0) {
+        const bgColors = [
+            'rgba(25, 135, 84, 0.7)',
+            'rgba(13, 110, 253, 0.7)',
+            'rgba(255, 193, 7, 0.7)',
+            'rgba(220, 53, 69, 0.7)',
+            'rgba(111, 66, 193, 0.7)',
+            'rgba(23, 162, 184, 0.7)'
+        ];
+
+        // 1. Aylana grafik (Doughnut Chart)
+        const ctxKwh = document.getElementById('kwhChart').getContext('2d');
+        new Chart(ctxKwh, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: kwhData,
+                    backgroundColor: bgColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+
+        // 2. Ustunli grafik (Bar Chart)
+        const ctxCo2 = document.getElementById('co2Chart').getContext('2d');
+        new Chart(ctxCo2, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'CO2 Izi (kg)',
+                    data: co2Data,
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1,
+                    borderRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+
+    // Inputlarga avtomatik Bootstrap klassini qo'shish
+    document.querySelectorAll('input').forEach(input => {
+        input.classList.add('form-control');
+    });
+</script>
+{% endblock %}
