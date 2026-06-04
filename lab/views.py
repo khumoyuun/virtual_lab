@@ -1,12 +1,13 @@
 import json
-import csv
-from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.decorators import login_required
 from django.db.models import Sum
 from .forms import UserRegisterForm, ConsumptionRecordForm
+import openpyxl
+from openpyxl.styles import Font, Alignment
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 from .models import ConsumptionRecord
 
 
@@ -139,19 +140,79 @@ def delete_record(request, pk):
     return redirect('dashboard')
 
 
-@login_required(login_url='login')
-def export_csv(request):
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="lab_results.csv"'
+@login_required
+def export_excel(request):
+    # 1. Excel fayl va uning birinchi varag'ini yaratish
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Elektr Sarfi va Prognoz"
 
-    writer = csv.writer(response)
-    writer.writerow(['Jihoz nomi', 'Soni', 'Quvvati (Vt)', 'Kunlik vaqt (soat)', 'Oylik sarf (kVt*s)', 'CO2 Izi (kg)',
-                     'Tizim maslahati'])
+    # 2. Sarlavhalarni (ustun nomlarini) aniq tartibda belgilash
+    headers = [
+        "Jihoz nomi",
+        "Soni",
+        "Quvvati (Vt)",
+        "Kunlik ish vaqti (soat)",
+        "Kunlik sarf (kVt*s)",
+        "1 Oylik sarf (kVt*s)",
+        "3 Oylik sarf (kVt*s)",
+        "6 Oylik sarf (kVt*s)",
+        "1 Yillik sarf (kVt*s)",
+        "CO2 Izi (kg)",
+        "Tizim maslahati (AI)"
+    ]
+    ws.append(headers)
 
-    records = request.user.records.all().order_by('-created_at')
-    for r in records:
-        writer.writerow(
-            [r.appliance_name, r.quantity, r.power_watts, r.hours_per_day, r.monthly_kwh, r.co2_footprint, r.auto_tip])
+    # Sarlavhalarni vizual ajratib ko'rsatish (Qalin va o'rtaga joylash)
+    for col_num, cell in enumerate(ws[1], 1):
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    # 3. Aynan hozirgi foydalanuvchining ma'lumotlarini bazadan olish
+    records = ConsumptionRecord.objects.filter(user=request.user)
+
+    # 4. Har bir qurilma uchun ma'lumotlarni hisoblash va yozish
+    for record in records:
+        daily = record.daily_kwh or 0
+        monthly = record.monthly_kwh or 0
+
+        # Geometrik va davriy prognoz hisob-kitoblari
+        month_3 = round(monthly * 3, 2)
+        month_6 = round(monthly * 6, 2)
+        yearly = round(monthly * 12, 2)
+
+        row = [
+            record.appliance_name,
+            record.quantity,
+            record.power_watts,
+            record.hours_per_day,
+            daily,
+            monthly,
+            month_3,
+            month_6,
+            yearly,
+            record.co2_footprint,
+            record.auto_tip
+        ]
+        ws.append(row)
+
+    # 5. Ustunlar kengligini ichidagi matn uzunligiga qarab avtomatik kengaytirish
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter  # A, B, C... harflarini aniqlaydi
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        # Sal kengroq va chiroyli turishi uchun +2 qo'shamiz
+        ws.column_dimensions[column].width = max_length + 2
+
+    # 6. Faylni to'g'ridan-to'g'ri brauzerga yuklab olish uchun formatlash
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Elektr_sarfi_hisoboti.xlsx"'
+    wb.save(response)
 
     return response
 

@@ -37,40 +37,52 @@
             <div class="col-6 col-md-3">
                 <div class="p-3 border rounded h-100 bg-body-tertiary">
                     <h6 class="text-secondary mb-3">1 Oylik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.m1.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.m1.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.m1.kwh }} <span
+                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.m1.cost }} <span
+                            class="fs-6 fw-normal text-muted">so'm</span></h5>
                     <div class="border-top pt-2 mt-2">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m1.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m1.co2 }} <span
+                                class="small fw-normal text-muted">kg CO2</span></h6>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="p-3 border rounded h-100 bg-body-tertiary">
                     <h6 class="text-secondary mb-3">3 Oylik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.m3.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.m3.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.m3.kwh }} <span
+                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.m3.cost }} <span
+                            class="fs-6 fw-normal text-muted">so'm</span></h5>
                     <div class="border-top pt-2 mt-2">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m3.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m3.co2 }} <span
+                                class="small fw-normal text-muted">kg CO2</span></h6>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="p-3 border rounded h-100 bg-body-tertiary">
                     <h6 class="text-secondary mb-3">6 Oylik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.m6.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.m6.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.m6.kwh }} <span
+                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.m6.cost }} <span
+                            class="fs-6 fw-normal text-muted">so'm</span></h5>
                     <div class="border-top pt-2 mt-2">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m6.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m6.co2 }} <span
+                                class="small fw-normal text-muted">kg CO2</span></h6>
                     </div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="p-3 border rounded h-100 bg-body-tertiary border-success">
                     <h6 class="text-success fw-bold mb-3">1 Yillik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.y1.kwh }} <span class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.y1.cost }} <span class="fs-6 fw-normal text-muted">so'm</span></h5>
+                    <h5 class="fw-bold text-primary mb-1">{{ projections.y1.kwh }} <span
+                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
+                    <h5 class="fw-bold text-danger mb-2">{{ projections.y1.cost }} <span
+                            class="fs-6 fw-normal text-muted">so'm</span></h5>
                     <div class="border-top pt-2 mt-2 border-success">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.y1.co2 }} <span class="small fw-normal text-muted">kg CO2</span></h6>
+                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.y1.co2 }} <span
+                                class="small fw-normal text-muted">kg CO2</span></h6>
                     </div>
                 </div>
             </div>
@@ -109,10 +121,10 @@
                 <form method="POST">
                     {% csrf_token %}
                     {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary">{{ field.label }}</label>
-                            {{ field }}
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
                     {% endfor %}
                     <button type="submit" class="btn btn-success w-100 mt-2">Hisoblash</button>
                 </form>
@@ -127,50 +139,53 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h5 class="card-title mb-0 fw-bold">📊 Laboratoriya Natijalari</h5>
                     {% if records %}
-                        <a href="{% url 'export_csv' %}" class="btn btn-outline-secondary btn-sm">📥 Excel (CSV)</a>
+                    <a href="{% url 'export_excel' %}" class="btn btn-success">
+                        📊 Excel (XLSX) yuklab olish
+                    </a>
                     {% endif %}
                 </div>
 
                 {% if records %}
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Jihoz</th>
-                                    <th>Soni</th>
-                                    <th>Quvvat (1 ta)</th>
-                                    <th>Vaqt</th>
-                                    <th>Oylik sarf</th>
-                                    <th>CO2 Izi</th>
-                                    <th>Amal</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for item in records %}
-                                <tr>
-                                    <td class="fw-bold">{{ item.appliance_name }}</td>
-                                    <td><span class="badge bg-secondary">{{ item.quantity }} ta</span></td>
-                                    <td>{{ item.power_watts }} Vt</td>
-                                    <td>{{ item.hours_per_day }} s/kun</td>
-                                    <td class="text-primary fw-bold">{{ item.monthly_kwh }} kVt·s</td>
-                                    <td class="text-danger fw-bold">{{ item.co2_footprint }} kg</td>
-                                    <td>
-                                        <a href="{% url 'delete_record' item.id %}" class="btn btn-outline-danger btn-sm">❌</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td colspan="7" class="border-bottom-0 pt-0 pb-3">
-                                        <div class="alert alert-light border-start border-success border-4 py-2 px-3 mb-1 small text-muted bg-body-tertiary">
-                                            💡 <b>Aqlli maslahat:</b> {{ item.auto_tip }}
-                                        </div>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                        <tr>
+                            <th>Jihoz</th>
+                            <th>Soni</th>
+                            <th>Quvvat (1 ta)</th>
+                            <th>Vaqt</th>
+                            <th>Oylik sarf</th>
+                            <th>CO2 Izi</th>
+                            <th>Amal</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for item in records %}
+                        <tr>
+                            <td class="fw-bold">{{ item.appliance_name }}</td>
+                            <td><span class="badge bg-secondary">{{ item.quantity }} ta</span></td>
+                            <td>{{ item.power_watts }} Vt</td>
+                            <td>{{ item.hours_per_day }} s/kun</td>
+                            <td class="text-primary fw-bold">{{ item.monthly_kwh }} kVt·s</td>
+                            <td class="text-danger fw-bold">{{ item.co2_footprint }} kg</td>
+                            <td>
+                                <a href="{% url 'delete_record' item.id %}" class="btn btn-outline-danger btn-sm">❌</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="7" class="border-bottom-0 pt-0 pb-3">
+                                <div class="alert alert-light border-start border-success border-4 py-2 px-3 mb-1 small text-muted bg-body-tertiary">
+                                    💡 <b>Aqlli maslahat:</b> {{ item.auto_tip }}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
-                    <p class="text-muted text-center my-4">Hali hech qanday jihoz kiritilmadi. Hisob-kitobni boshlash uchun chap tomondagi formadan foydalaning.</p>
+                <p class="text-muted text-center my-4">Hali hech qanday jihoz kiritilmadi. Hisob-kitobni boshlash uchun
+                    chap tomondagi formadan foydalaning.</p>
                 {% endif %}
             </div>
         </div>
@@ -180,9 +195,24 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const labels = {{ chart_labels|safe }};
-    const kwhData = {{ chart_kwh|safe }};
-    const co2Data = {{ chart_co2|safe }};
+    const labels = {
+    {
+        chart_labels | safe
+    }
+    }
+    ;
+    const kwhData = {
+    {
+        chart_kwh | safe
+    }
+    }
+    ;
+    const co2Data = {
+    {
+        chart_co2 | safe
+    }
+    }
+    ;
 
     if (labels.length > 0) {
         const bgColors = [
@@ -210,7 +240,7 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: 'right' }
+                    legend: {position: 'right'}
                 }
             }
         });
@@ -234,10 +264,10 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {beginAtZero: true}
                 },
                 plugins: {
-                    legend: { display: false }
+                    legend: {display: false}
                 }
             }
         });

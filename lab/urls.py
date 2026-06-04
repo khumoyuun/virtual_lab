@@ -7,7 +7,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('delete/<int:pk>/', views.delete_record, name='delete_record'), # YANGI QO'SHILDI
     path('', views.dashboard, name='dashboard'),
-    path('export/', views.export_csv, name='export_csv'),
+    path('export/', views.export_excel, name='export_excel'),
     path('guide/', views.guide_view, name='guide'),
 
     path('', views.dashboard, name='dashboard'),
