@@ -314,3 +314,54 @@
     });
 </script>
 {% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Tepadagi jadvaldan ma'lumotlarni yig'ib olish
+    const labels = [];
+    const kwhData = [];
+    const co2Data = [];
+
+    document.querySelectorAll("table tbody tr").forEach(row => {
+        const cols = row.querySelectorAll("td");
+        if(cols.length > 4) {
+            labels.push(cols[0].innerText.trim()); // Jihoz nomi
+            kwhData.push(parseFloat(cols[4].innerText)); // Oylik sarf
+            co2Data.push(parseFloat(cols[5].innerText)); // CO2 izi
+        }
+    });
+
+    // 1. Elektr sarfi ulushi (Doiraviy diagramma - Pie Chart)
+    const ctxPie = document.getElementById('pieChart');
+    if (ctxPie && labels.length > 0) {
+        new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: kwhData,
+                    backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#0dcaf0', '#6f42c1']
+                }]
+            }
+        });
+    }
+
+    // 2. CO2 Izi (Ustunli diagramma - Bar Chart)
+    const ctxBar = document.getElementById('barChart');
+    if (ctxBar && labels.length > 0) {
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'CO2 izi (kg)',
+                    data: co2Data,
+                    backgroundColor: '#198754'
+                }]
+            }
+        });
+    }
+});
+</script>
