@@ -10,6 +10,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment
 import google.generativeai as genai
 from .forms import UserRegisterForm, ApplianceForm, LocationForm
+from django.utils.translation import get_language
 
 # Eski ConsumptionRecordForm o'rniga yangi formalar va modellar chaqirilmoqda
 from .models import Appliance, Location
@@ -107,18 +108,25 @@ def dashboard(request):
                 new_app.monthly_kwh = daily_kwh * 30 * new_app.quantity
                 new_app.co2_footprint = new_app.monthly_kwh * 0.4
 
-                # --- AI Maslahat qismi ---
+                # --- AI Maslahat qismi (Tillarga moslashtirilgan) ---
+                current_lang = get_language()  # Sayt qaysi tilda ekanligini aniqlaymiz
+
+                if current_lang == 'ru':
+                    prompt = f"В моем объекте '{new_app.location.name}' устройство '{new_app.appliance_name}' мощностью {new_app.power_watts} Вт работает {new_app.hours_per_day} часов в день. Дай 1-2 кратких совета по энергосбережению на русском языке."
+                elif current_lang == 'en':
+                    prompt = f"In my location '{new_app.location.name}', the appliance '{new_app.appliance_name}' ({new_app.power_watts} watts) runs for {new_app.hours_per_day} hours a day. Provide 1-2 short energy-saving tips in English."
+                else:
+                    prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1-2 ta qisqa maslahatni o'zbek tilida ber."
+
                 try:
                     genai.configure(api_key=settings.GEMINI_API_KEY)
-                    # Yangi va tezkor modelga o'zgartirildi:
                     model = genai.GenerativeModel('gemini-1.5-flash')
-                    prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1-2 ta qisqa maslahat ber."
                     response = model.generate_content(prompt)
                     new_app.auto_tip = response.text
                 except Exception as e:
-                    # Agar xato qilsa, terminalda qizil yozuvlar bilan asl sababni ko'rsatadi
-                    print(f"!!! AI XATOLIGI: {e}")
-                    new_app.auto_tip = "AI maslahatini olishda xatolik yuz berdi."
+                    # DIQQAT: Endi xatolikning asl sababi bekitilmaydi, to'g'ridan-to'g'ri jadvalga yoziladi!
+                    new_app.auto_tip = f"Server xatosi: {str(e)[:100]}..."
+                # ---------------------------------------------------
 
                 new_app.save()
                 return redirect('dashboard')
