@@ -109,7 +109,7 @@ def dashboard(request):
                 new_app.co2_footprint = new_app.monthly_kwh * 0.4
 
                 # --- AI Maslahat qismi (Tillarga moslashtirilgan) ---
-                current_lang = get_language()  # Sayt qaysi tilda ekanligini aniqlaymiz
+                current_lang = get_language()
 
                 if current_lang == 'ru':
                     prompt = f"В моем объекте '{new_app.location.name}' устройство '{new_app.appliance_name}' мощностью {new_app.power_watts} Вт работает {new_app.hours_per_day} часов в день. Дай 1-2 кратких совета по энергосбережению на русском языке."
@@ -120,11 +120,11 @@ def dashboard(request):
 
                 try:
                     genai.configure(api_key=settings.GEMINI_API_KEY)
-                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    # O'zimizning ishonchli va ishlagan modelimizga qaytdik
+                    model = genai.GenerativeModel('gemini-pro')
                     response = model.generate_content(prompt)
                     new_app.auto_tip = response.text
                 except Exception as e:
-                    # DIQQAT: Endi xatolikning asl sababi bekitilmaydi, to'g'ridan-to'g'ri jadvalga yoziladi!
                     new_app.auto_tip = f"Server xatosi: {str(e)[:100]}..."
                 # ---------------------------------------------------
 
