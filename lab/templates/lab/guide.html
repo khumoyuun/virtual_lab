@@ -1,46 +1,61 @@
 {% extends 'lab/base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="card border-0 shadow-sm mb-4">
     <div class="card-body p-5">
-        <h2 class="fw-bold text-success mb-3">📚 Yashil Energiya va Uglerod Izi Qo'llanmasi</h2>
+        <h2 class="fw-bold text-success mb-3">
+            {% trans "📚 Yashil Energiya va Uglerod Izi Qo'llanmasi" %}
+        </h2>
         <p class="text-muted fs-5 mb-4">
+            {% blocktranslate %}
             Ushbu virtual laboratoriyaning maqsadi faqatgina sarf-xarajatlarni hisoblash emas, balki kundalik hayotimizda oddiy odatlarni o'zgartirish orqali tabiatni asrashga hissa qo'shishdir.
+            {% endblocktranslate %}
         </p>
 
         <hr class="my-4">
 
         <div class="row g-4">
             <div class="col-md-6">
-                <h5 class="fw-bold text-dark">🔌 1. "Kutish rejimi" (Standby) siri</h5>
+                <h5 class="fw-bold text-dark">🔌 1. {% trans '"Kutish rejimi" (Standby) siri' %}</h5>
                 <p class="text-secondary">
-                    Ko'pchilik jihozlar (TV, kompyuter, zaryadchilar) o'chirilgan holatda ham rozetkaga suqilgan bo'lsa, energiya sarflashda davom etadi. Buni "vampir energiya" deb atashadi. Ularni to'liq uzib qo'yish orqali umumiy sarfni <b>5-10%</b> gacha kamaytirish mumkin.
+                    {% blocktranslate %}
+                    Ko'pchilik jihozlar (TV, kompyuter, zaryadchilar) o'chirilgan holatda ham rozetkaga suqilgan bo'lsa, energiya sarflashda davom etadi. Buni "vampir energiya" deb atashadi. Ularni to'liq uzib qo'yish orqali umumiy sarfni 5-10% gacha kamaytirish mumkin.
+                    {% endblocktranslate %}
                 </p>
             </div>
             <div class="col-md-6">
-                <h5 class="fw-bold text-dark">💡 2. Yoritish tizimlari</h5>
+                <h5 class="fw-bold text-dark">💡 2. {% trans "Yoritish tizimlari" %}</h5>
                 <p class="text-secondary">
-                    An'anaviy cho'g'lanma lampalarni <b>LED lampalarga</b> almashtiring. LED lampalar 80% gacha kamroq energiya sarflaydi va 25 barobar uzoqroq xizmat qiladi. Bu eng tez va samarali tejamkorlik usulidir.
+                    {% blocktranslate %}
+                    An'anaviy cho'g'lanma lampalarni LED lampalarga almashtiring. LED lampalar 80% gacha kamroq energiya sarflaydi va 25 barobar uzoqroq xizmat qiladi. Bu eng tez va samarali tejamkorlik usulidir.
+                    {% endblocktranslate %}
                 </p>
             </div>
             <div class="col-md-6">
-                <h5 class="fw-bold text-dark">❄️ 3. Katta jihozlardan to'g'ri foydalanish</h5>
+                <h5 class="fw-bold text-dark">❄️ 3. {% trans "Katta jihozlardan to'g'ri foydalanish" %}</h5>
                 <p class="text-secondary">
+                    {% blocktranslate %}
                     Muzlatgich haroratini +4°C, muzxonasini esa -18°C da saqlang. Eshigini uzoq ochiq qoldirmang. Kir yuvish mashinasini faqat to'liq yuklama bilan va pastroq haroratda (30-40°C) ishlating, chunki energiyaning 90% suvni isitishga ketadi.
+                    {% endblocktranslate %}
                 </p>
             </div>
             <div class="col-md-6">
-                <h5 class="fw-bold text-dark">🌍 4. Uglerod izi (CO2 Footprint) nima?</h5>
+                <h5 class="fw-bold text-dark">🌍 4. {% trans "Uglerod izi (CO2 Footprint) nima?" %}</h5>
                 <p class="text-secondary">
-                    Elektr stansiyalarida energiya ishlab chiqarish uchun asosan gaz va ko'mir yoqiladi. Siz qancha ko'p tok ishlatsangiz, havoga shuncha ko'p issiqxona gazi ($CO_2$) ko'tariladi. O'zbekiston sharoitida o'rtacha 1 kVt·soat energiya <b>0.5 kg $CO_2$</b> hosil qiladi.
+                    {% blocktranslate %}
+                    Elektr stansiyalarida energiya ishlab chiqarish uchun asosan gaz va ko'mir yoqiladi. Siz qancha ko'p tok ishlatsangiz, havoga shuncha ko'p issiqxona gazi (CO2) ko'tariladi. O'zbekiston sharoitida o'rtacha 1 kVt·soat energiya 0.5 kg CO2 hosil qiladi.
+                    {% endblocktranslate %}
                 </p>
             </div>
         </div>
 
         <div class="alert alert-success mt-5 border-0 border-start border-success border-5">
-            <h6 class="alert-heading fw-bold">🎓 Laboratoriya xulosasi:</h6>
+            <h6 class="alert-heading fw-bold">🎓 {% trans "Laboratoriya xulosasi:" %}</h6>
             <p class="mb-0 small">
-                Olingan bilimlarni Dashboard sahifasida sinab ko'ring. Jihozlarning ishlash soatini bir necha soatga qisqartirib, grafiklarda $CO_2$ miqdori qanchalik tez tushishini o'z ko'zingiz bilan kuzating!
+                {% blocktranslate %}
+                Olingan bilimlarni Dashboard sahifasida sinab ko'ring. Jihozlarning ishlash soatini bir necha soatga qisqartirib, grafiklarda CO2 miqdori qanchalik tez tushishini o'z ko'zingiz bilan kuzating!
+                {% endblocktranslate %}
             </p>
         </div>
     </div>

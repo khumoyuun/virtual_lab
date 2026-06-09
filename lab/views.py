@@ -3,12 +3,20 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Sum
-from .forms import UserRegisterForm, ConsumptionRecordForm
-import openpyxl
-from openpyxl.styles import Font, Alignment
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from .models import ConsumptionRecord
+from django.conf import settings
+import openpyxl
+from openpyxl.styles import Font, Alignment
+import google.generativeai as genai
+from .forms import UserRegisterForm, ApplianceForm, LocationForm
+
+# Eski ConsumptionRecordForm o'rniga yangi formalar va modellar chaqirilmoqda
+from .models import Appliance, Location
+
+
+def landing_page(request):
+    return render(request, 'lab/landing.html')
 
 
 # --- Sonlarni chiroyli formatlash uchun yordamchi funksiyalar ---
@@ -20,7 +28,7 @@ def format_kwh(amount):
     return f"{amount:.1f}"
 
 
-# --- YANGI: Differensial tarif hisoblash funksiyasi (2026-yil 1-iyundan keyin) ---
+# --- Differensial tarif hisoblash funksiyasi (2026-yil 1-iyundan keyin) ---
 def calculate_monthly_cost(kwh):
     if kwh <= 0:
         return 0
@@ -41,8 +49,6 @@ def calculate_monthly_cost(kwh):
 
     return cost
 
-
-# ----------------------------------------------------------------
 
 def register_view(request):
     if request.method == 'POST':
@@ -75,54 +81,77 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def dashboard(request):
-    records = request.user.records.all().order_by('-created_at')
+    # Foydalanuvchiga tegishli Uylar/Korxonalar va barcha jihozlar
+    locations = Location.objects.filter(user=request.user)
+    appliances = Appliance.objects.filter(user=request.user).order_by('-id')
 
-    total_monthly_kwh = records.aggregate(Sum('monthly_kwh'))['monthly_kwh__sum'] or 0
-    total_co2 = records.aggregate(Sum('co2_footprint'))['co2_footprint__sum'] or 0
+    if request.method == 'POST':
+        # 1. Yangi Obyekt (Uy/Korxona) qo'shish
+        if 'add_location' in request.POST:
+            location_form = LocationForm(request.POST)
+            if location_form.is_valid():
+                new_loc = location_form.save(commit=False)
+                new_loc.user = request.user
+                new_loc.save()
+                return redirect('dashboard')
 
-    # --- XARAJATLAR VA VAQT PROGNOZI (Differensial tarif asosida) ---
+        # 2. Mavjud obyektga yangi Jihoz qo'shish
+        elif 'add_appliance' in request.POST:
+            appliance_form = ApplianceForm(request.POST, user=request.user)
+            if appliance_form.is_valid():
+                new_app = appliance_form.save(commit=False)
+                new_app.user = request.user
+
+                # Oylik energiya va CO2 sarfini avtomatik hisoblash
+                daily_kwh = (new_app.power_watts * new_app.hours_per_day) / 1000
+                new_app.monthly_kwh = daily_kwh * 30 * new_app.quantity
+                new_app.co2_footprint = new_app.monthly_kwh * 0.4
+
+                # --- AI Maslahat qismi ---
+                try:
+                    genai.configure(api_key=settings.GEMINI_API_KEY)
+                    # Yangi va tezkor modelga o'zgartirildi:
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1-2 ta qisqa maslahat ber."
+                    response = model.generate_content(prompt)
+                    new_app.auto_tip = response.text
+                except Exception as e:
+                    # Agar xato qilsa, terminalda qizil yozuvlar bilan asl sababni ko'rsatadi
+                    print(f"!!! AI XATOLIGI: {e}")
+                    new_app.auto_tip = "AI maslahatini olishda xatolik yuz berdi."
+
+                new_app.save()
+                return redirect('dashboard')
+
+    # GET so'rovi uchun bo'sh formalar
+    location_form = LocationForm()
+    appliance_form = ApplianceForm(user=request.user)
+
+    # Hisob-kitoblar va Prognozlar (Yangi Appliance modeli asosida)
+    total_monthly_kwh = appliances.aggregate(Sum('monthly_kwh'))['monthly_kwh__sum'] or 0
+    total_co2 = appliances.aggregate(Sum('co2_footprint'))['co2_footprint__sum'] or 0
     monthly_cost = calculate_monthly_cost(total_monthly_kwh)
 
     projections = {
-        'm1': {
-            'kwh': format_kwh(total_monthly_kwh),
-            'cost': format_money(monthly_cost),
-            'co2': format_kwh(total_co2)
-        },
-        'm3': {
-            'kwh': format_kwh(total_monthly_kwh * 3),
-            'cost': format_money(monthly_cost * 3),
-            'co2': format_kwh(total_co2 * 3)
-        },
-        'm6': {
-            'kwh': format_kwh(total_monthly_kwh * 6),
-            'cost': format_money(monthly_cost * 6),
-            'co2': format_kwh(total_co2 * 6)
-        },
-        'y1': {
-            'kwh': format_kwh(total_monthly_kwh * 12),
-            'cost': format_money(monthly_cost * 12),
-            'co2': format_kwh(total_co2 * 12)
-        },
+        'm1': {'kwh': format_kwh(total_monthly_kwh), 'cost': format_money(monthly_cost), 'co2': format_kwh(total_co2)},
+        'm3': {'kwh': format_kwh(total_monthly_kwh * 3), 'cost': format_money(monthly_cost * 3),
+               'co2': format_kwh(total_co2 * 3)},
+        'm6': {'kwh': format_kwh(total_monthly_kwh * 6), 'cost': format_money(monthly_cost * 6),
+               'co2': format_kwh(total_co2 * 6)},
+        'y1': {'kwh': format_kwh(total_monthly_kwh * 12), 'cost': format_money(monthly_cost * 12),
+               'co2': format_kwh(total_co2 * 12)},
     }
 
-    chart_labels = [r.appliance_name for r in records]
-    chart_kwh = [r.monthly_kwh for r in records]
-    chart_co2 = [r.co2_footprint for r in records]
-
-    if request.method == 'POST':
-        form = ConsumptionRecordForm(request.POST)
-        if form.is_valid():
-            record = form.save(commit=False)
-            record.user = request.user
-            record.save()
-            return redirect('dashboard')
-    else:
-        form = ConsumptionRecordForm()
+    # Grafiklar uchun ma'lumot
+    chart_labels = [r.appliance_name for r in appliances]
+    chart_kwh = [r.monthly_kwh for r in appliances]
+    chart_co2 = [r.co2_footprint for r in appliances]
 
     context = {
-        'form': form,
-        'records': records,
+        'locations': locations,
+        'appliances': appliances,
+        'location_form': location_form,
+        'appliance_form': appliance_form,
         'total_monthly_kwh': round(total_monthly_kwh, 2),
         'total_co2': round(total_co2, 2),
         'projections': projections,
@@ -135,20 +164,20 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def delete_record(request, pk):
-    record = get_object_or_404(ConsumptionRecord, pk=pk, user=request.user)
+    # Eski ConsumptionRecord o'rniga yangi Appliance chaqirilmoqda
+    record = get_object_or_404(Appliance, pk=pk, user=request.user)
     record.delete()
     return redirect('dashboard')
 
 
 @login_required
 def export_excel(request):
-    # 1. Excel fayl va uning birinchi varag'ini yaratish
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Elektr Sarfi va Prognoz"
 
-    # 2. Sarlavhalarni (ustun nomlarini) aniq tartibda belgilash
     headers = [
+        "Obyekt (Uy/Korxona)",
         "Jihoz nomi",
         "Soni",
         "Quvvati (Vt)",
@@ -163,30 +192,31 @@ def export_excel(request):
     ]
     ws.append(headers)
 
-    # Sarlavhalarni vizual ajratib ko'rsatish (Qalin va o'rtaga joylash)
     for col_num, cell in enumerate(ws[1], 1):
         cell.font = Font(bold=True)
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
-    # 3. Aynan hozirgi foydalanuvchining ma'lumotlarini bazadan olish
-    records = ConsumptionRecord.objects.filter(user=request.user)
+    # Yangi Appliance orqali ma'lumotlarni tortish
+    records = Appliance.objects.filter(user=request.user)
 
-    # 4. Har bir qurilma uchun ma'lumotlarni hisoblash va yozish
     for record in records:
-        daily = record.daily_kwh or 0
+        daily = (record.power_watts * record.hours_per_day) / 1000 * record.quantity
         monthly = record.monthly_kwh or 0
 
-        # Geometrik va davriy prognoz hisob-kitoblari
         month_3 = round(monthly * 3, 2)
         month_6 = round(monthly * 6, 2)
         yearly = round(monthly * 12, 2)
 
+        # Obyekt nomini olish (agar biriktirilmagan bo'lsa "Noma'lum" deb yoziladi)
+        location_name = record.location.name if record.location else "Noma'lum"
+
         row = [
+            location_name,
             record.appliance_name,
             record.quantity,
             record.power_watts,
             record.hours_per_day,
-            daily,
+            round(daily, 2),
             monthly,
             month_3,
             month_6,
@@ -196,20 +226,17 @@ def export_excel(request):
         ]
         ws.append(row)
 
-    # 5. Ustunlar kengligini ichidagi matn uzunligiga qarab avtomatik kengaytirish
     for col in ws.columns:
         max_length = 0
-        column = col[0].column_letter  # A, B, C... harflarini aniqlaydi
+        column = col[0].column_letter
         for cell in col:
             try:
                 if len(str(cell.value)) > max_length:
                     max_length = len(str(cell.value))
             except:
                 pass
-        # Sal kengroq va chiroyli turishi uchun +2 qo'shamiz
         ws.column_dimensions[column].width = max_length + 2
 
-    # 6. Faylni to'g'ridan-to'g'ri brauzerga yuklab olish uchun formatlash
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = 'attachment; filename="Elektr_sarfi_hisoboti.xlsx"'
     wb.save(response)

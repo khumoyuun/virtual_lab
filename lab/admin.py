@@ -1,11 +1,13 @@
 from django.contrib import admin
-from .models import Appliance, ConsumptionRecord
+from .models import Location, Appliance
+
+@admin.register(Location)
+class LocationAdmin(admin.ModelAdmin):
+    list_display = ('name', 'location_type', 'user', 'created_at')
+    list_filter = ('location_type', 'user')
 
 @admin.register(Appliance)
 class ApplianceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'avg_power_watts')
-
-@admin.register(ConsumptionRecord)
-class ConsumptionRecordAdmin(admin.ModelAdmin):
-    list_display = ('user', 'appliance_name', 'power_watts', 'hours_per_day', 'monthly_kwh', 'co2_footprint')
-    readonly_fields = ('daily_kwh', 'monthly_kwh', 'co2_footprint', 'auto_tip') # Bu maydonlar avtomatik to'ldiriladi
+    # Yangi maydonlarga moslashtirildi
+    list_display = ('appliance_name', 'location', 'user', 'power_watts', 'hours_per_day', 'monthly_kwh')
+    list_filter = ('location', 'user')

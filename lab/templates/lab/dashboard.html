@@ -1,146 +1,72 @@
 {% extends 'lab/base.html' %}
+{% load i18n %}
 
 {% block content %}
-
-<style>
-    /* Barcha yozuvlarni (matnlarni) alohida qatorga o'tkazish */
-    form label {
-        display: block !important;
-        margin-bottom: 6px;
-        margin-top: 10px;
-        font-weight: 600;
-        font-size: 14px;
-        color: #444;
-    }
-
-    /* Barcha kiritish darchalarini bir xil uzunlikda va chiroyli qilish */
-    form input[type="text"],
-    form input[type="number"],
-    form select {
-        width: 100% !important;
-        padding: 10px 12px;
-        margin-bottom: 5px;
-        border: 1px solid #ced4da;
-        border-radius: 6px;
-        box-sizing: border-box !important;
-        font-size: 15px;
-        display: block !important;
-        transition: border-color 0.15s ease-in-out;
-    }
-
-    /* Darchaga bosilganda ko'k hoshiya yonishi uchun */
-    form input:focus, form select:focus {
-        border-color: #86b7fe;
-        outline: 0;
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-    }
-</style>
-
-<div class="row mb-4">
+<div class="row mb-4 align-items-center">
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm bg-primary text-white h-100">
-            <div class="card-body d-flex align-items-center">
-                <div class="me-3 display-4">⚡</div>
-                <div>
-                    <h6 class="card-title text-uppercase opacity-75 mb-1">Jami Oylik Sarf</h6>
-                    <h2 class="mb-0 fw-bold">{{ total_monthly_kwh }} <span class="fs-5 fw-normal">kVt·soat</span></h2>
-                </div>
+        <h2 class="fw-bold mb-0">{% trans "Asosiy Panel" %}</h2>
+        <p class="text-body-secondary mt-1">{% trans "Energiya sarfini aqlli boshqaring" %}</p>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <a href="{% url 'export_excel' %}" class="btn btn-outline-success shadow-sm me-2">
+            📊 {% trans "Excelga yuklash" %}
+        </a>
+        <button type="button" class="btn btn-primary shadow-sm me-2" data-bs-toggle="modal"
+                data-bs-target="#locationModal">
+            + {% trans "Uy/Korxona qo'shish" %}
+        </button>
+        <button type="button" class="btn btn-success shadow-sm" data-bs-toggle="modal" data-bs-target="#applianceModal">
+            + {% trans "Jihoz qo'shish" %}
+        </button>
+    </div>
+</div>
+
+<!-- 1. UMUMIY HISOB-KITOBLAR (Cards) -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-primary text-white">
+            <div class="card-body p-4">
+                <h6 class="text-white-50 fw-bold">{% trans "Umumiy Oylik Sarf" %}</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ total_monthly_kwh|floatformat:1 }} <small
+                        class="fs-5">kVt·s</small></h2>
             </div>
         </div>
     </div>
-    <div class="col-md-6 mt-3 mt-md-0">
-        <div class="card border-0 shadow-sm bg-danger text-white h-100">
-            <div class="card-body d-flex align-items-center">
-                <div class="me-3 display-4">🌍</div>
-                <div>
-                    <h6 class="card-title text-uppercase opacity-75 mb-1">Jami Uglerod Izi (CO2)</h6>
-                    <h2 class="mb-0 fw-bold">{{ total_co2 }} <span class="fs-5 fw-normal">kg</span></h2>
-                </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-success text-white">
+            <div class="card-body p-4">
+                <h6 class="text-white-50 fw-bold">{% trans "Oylik Xarajat (Kutilayotgan)" %}</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ projections.m1.cost }} <small class="fs-5">so'm</small></h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm rounded-4 h-100 bg-danger text-white">
+            <div class="card-body p-4">
+                <h6 class="text-white-50 fw-bold">{% trans "CO2 Izi (Tabiatga zarar)" %}</h6>
+                <h2 class="display-5 fw-bold mb-0">{{ total_co2|floatformat:1 }} <small class="fs-5">kg</small></h2>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm mb-4 bg-body">
-    <div class="card-body p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-            <h5 class="fw-bold mb-0 text-success">📅 Xarajatlar va Sarf Prognozi</h5>
-            <span class="badge bg-warning text-dark fs-6 shadow-sm">Ijtimoiy norma (Differensial tarif)</span>
-        </div>
-
-        <div class="row text-center g-3">
-            <div class="col-6 col-md-3">
-                <div class="p-3 border rounded h-100 bg-body-tertiary">
-                    <h6 class="text-secondary mb-3">1 Oylik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.m1.kwh }} <span
-                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.m1.cost }} <span
-                            class="fs-6 fw-normal text-muted">so'm</span></h5>
-                    <div class="border-top pt-2 mt-2">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m1.co2 }} <span
-                                class="small fw-normal text-muted">kg CO2</span></h6>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="p-3 border rounded h-100 bg-body-tertiary">
-                    <h6 class="text-secondary mb-3">3 Oylik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.m3.kwh }} <span
-                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.m3.cost }} <span
-                            class="fs-6 fw-normal text-muted">so'm</span></h5>
-                    <div class="border-top pt-2 mt-2">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m3.co2 }} <span
-                                class="small fw-normal text-muted">kg CO2</span></h6>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="p-3 border rounded h-100 bg-body-tertiary">
-                    <h6 class="text-secondary mb-3">6 Oylik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.m6.kwh }} <span
-                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.m6.cost }} <span
-                            class="fs-6 fw-normal text-muted">so'm</span></h5>
-                    <div class="border-top pt-2 mt-2">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.m6.co2 }} <span
-                                class="small fw-normal text-muted">kg CO2</span></h6>
-                    </div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="p-3 border rounded h-100 bg-body-tertiary border-success">
-                    <h6 class="text-success fw-bold mb-3">1 Yillik</h6>
-                    <h5 class="fw-bold text-primary mb-1">{{ projections.y1.kwh }} <span
-                            class="fs-6 fw-normal text-muted">kVt·s</span></h5>
-                    <h5 class="fw-bold text-danger mb-2">{{ projections.y1.cost }} <span
-                            class="fs-6 fw-normal text-muted">so'm</span></h5>
-                    <div class="border-top pt-2 mt-2 border-success">
-                        <h6 class="fw-bold text-success mb-0">🌍 {{ projections.y1.co2 }} <span
-                                class="small fw-normal text-muted">kg CO2</span></h6>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<!<!-- 2. DIAGRAMMALAR -->
 <div class="row mb-4">
-    <div class="col-md-6 mb-3 mb-md-0">
-        <div class="card border-0 shadow-sm h-100 bg-body">
-            <div class="card-body">
-                <h6 class="card-title fw-bold text-center mb-3">Elektr sarfi ulushi (kVt·s)</h6>
-                <div style="position: relative; height: 260px; width: 100%;">
-                    <canvas id="kwhChart"></canvas>
+    <div class="col-md-6 mb-4 mb-md-0">
+        <!-- 1-Grafik: Doiraviy (Elektr sarfi) -->
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body p-4">
+                <div style="height: 300px;">
+                    <canvas id="energyChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100 bg-body">
-            <div class="card-body">
-                <h6 class="card-title fw-bold text-center mb-3">Qurilmalarning CO2 izi (kg)</h6>
-                <div style="position: relative; height: 260px; width: 100%;">
+        <!-- 2-Grafik: Ustunli (CO2 izi) -->
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+            <div class="card-body p-4">
+                <div style="height: 300px;">
                     <canvas id="co2Chart"></canvas>
                 </div>
             </div>
@@ -148,168 +74,293 @@
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-4 mb-4">
-        <div class="card border-0 shadow-sm bg-body">
-            <div class="card-body">
-                <h5 class="card-title mb-3 text-success fw-bold">➕ Yangi jihoz qo'shish</h5>
-                <form method="POST">
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold text-secondary">{{ field.label }}</label>
-                        {{ field }}
-                    </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-success w-100 mt-2">Hisoblash</button>
-                </form>
+<!-- YANGI 3. XARAJATLAR VA SARF PROGNOZI -->
+<div class="mb-5 mt-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 border-bottom pb-3">
+        <h4 class="fw-bold text-success mb-2 mb-md-0">📅 {% trans "Xarajatlar va Sarf Prognozi" %}</h4>
+        <span class="badge bg-warning text-dark fs-6 rounded-3 px-3 py-2 shadow-sm">{% trans "Ijtimoiy norma (Differensial tarif)" %}</span>
+    </div>
+
+    <div class="row g-3 text-center">
+        <!-- 1 Oylik -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border rounded-3 h-100">
+                <div class="card-body d-flex flex-column justify-content-center p-4">
+                    <p class="text-secondary fw-semibold mb-3 fs-5">{% trans "1 Oylik" %}</p>
+                    <h3 class="fw-bold text-primary mb-1">{{ projections.m1.kwh }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "kVt·s" %}</span></h3>
+                    <h3 class="fw-bold text-danger mb-3">{{ projections.m1.cost }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "so'm" %}</span></h3>
+                    <hr class="mt-auto mb-3 w-100 mx-auto border-secondary opacity-25">
+                    <p class="mb-0 fw-bold text-success fs-6">🌍 {{ projections.m1.co2 }} <span
+                            class="fw-normal text-secondary">{% trans "kg CO2" %}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Oylik -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border rounded-3 h-100">
+                <div class="card-body d-flex flex-column justify-content-center p-4">
+                    <p class="text-secondary fw-semibold mb-3 fs-5">{% trans "3 Oylik" %}</p>
+                    <h3 class="fw-bold text-primary mb-1">{{ projections.m3.kwh }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "kVt·s" %}</span></h3>
+                    <h3 class="fw-bold text-danger mb-3">{{ projections.m3.cost }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "so'm" %}</span></h3>
+                    <hr class="mt-auto mb-3 w-100 mx-auto border-secondary opacity-25">
+                    <p class="mb-0 fw-bold text-success fs-6">🌍 {{ projections.m3.co2 }} <span
+                            class="fw-normal text-secondary">{% trans "kg CO2" %}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6 Oylik -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border rounded-3 h-100">
+                <div class="card-body d-flex flex-column justify-content-center p-4">
+                    <p class="text-secondary fw-semibold mb-3 fs-5">{% trans "6 Oylik" %}</p>
+                    <h3 class="fw-bold text-primary mb-1">{{ projections.m6.kwh }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "kVt·s" %}</span></h3>
+                    <h3 class="fw-bold text-danger mb-3">{{ projections.m6.cost }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "so'm" %}</span></h3>
+                    <hr class="mt-auto mb-3 w-100 mx-auto border-secondary opacity-25">
+                    <p class="mb-0 fw-bold text-success fs-6">🌍 {{ projections.m6.co2 }} <span
+                            class="fw-normal text-secondary">{% trans "kg CO2" %}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1 Yillik -->
+        <div class="col-md-3">
+            <div class="card shadow-sm border-success border-2 rounded-3 h-100">
+                <div class="card-body d-flex flex-column justify-content-center p-4">
+                    <p class="text-success fw-bold mb-3 fs-5">{% trans "1 Yillik" %}</p>
+                    <h3 class="fw-bold text-primary mb-1">{{ projections.y1.kwh }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "kVt·s" %}</span></h3>
+                    <h3 class="fw-bold text-danger mb-3">{{ projections.y1.cost }} <span
+                            class="fs-6 fw-normal text-body-secondary">{% trans "so'm" %}</span></h3>
+                    <hr class="mt-auto mb-3 border-success opacity-50 w-100 mx-auto">
+                    <p class="mb-0 fw-bold text-success fs-6">🌍 {{ projections.y1.co2 }} <span
+                            class="fw-normal text-secondary">{% trans "kg CO2" %}</span></p>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm bg-body">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="card-title mb-0 fw-bold">📊 Laboratoriya Natijalari</h5>
-                    {% if records %}
-                    <a href="{% url 'export_excel' %}" class="btn btn-success">
-                        📊 Excel (XLSX) yuklab olish
-                    </a>
+    <!-- 3. OBYEKTLAR BO'YICHA VARAQALAR -->
+    <h4 class="fw-bold mb-3">📍 {% trans "Obyektlar bo'yicha jihozlar" %}</h4>
+
+    {% if not locations %}
+    <div class="alert alert-warning rounded-4 shadow-sm p-4">
+        <strong>⚠️ {% trans "Sizda hali hech qanday obyekt (Uy yoki Korxona) yo'q." %}</strong>
+        {% trans "Jihoz qo'shishdan oldin, yuqoridagi ko'k tugma orqali o'z uyingizni yoki korxonangizni ro'yxatdan
+        o'tkazing." %}
+    </div>
+    {% else %}
+    <ul class="nav nav-tabs fw-semibold" id="locationTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active text-success" id="all-tab" data-bs-toggle="tab" data-bs-target="#all"
+                    type="button" role="tab">
+                📋 {% trans "Umumiy ro'yxat" %}
+            </button>
+        </li>
+        {% for loc in locations %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link text-body-emphasis" id="loc-{{ loc.id }}-tab" data-bs-toggle="tab"
+                    data-bs-target="#loc-{{ loc.id }}" type="button" role="tab">
+                {% if loc.location_type == 'home' %}🏠{% else %}🏢{% endif %} {{ loc.name }}
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content border border-top-0 p-4 bg-body shadow-sm rounded-bottom-4 mb-5" id="locationTabsContent">
+        <div class="tab-pane fade show active" id="all" role="tabpanel">
+            {% include 'lab/includes/appliances_table.html' with app_list=appliances show_location=True %}
+        </div>
+        {% for loc in locations %}
+        <div class="tab-pane fade" id="loc-{{ loc.id }}" role="tabpanel">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mt-2">
+                    <thead class="table-light">
+                    <tr>
+                        <th>{% trans "Jihoz" %}</th>
+                        <th>{% trans "Soni" %}</th>
+                        <th>{% trans "Quvvat" %}</th>
+                        <th>{% trans "Vaqt" %}</th>
+                        <th>{% trans "Oylik Sarf" %}</th>
+                        <th>{% trans "Sun'iy Intellekt Maslahati" %}</th>
+                        <th>{% trans "Amal" %}</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for app in appliances %}
+                    {% if app.location.id == loc.id %}
+                    <tr>
+                        <td class="fw-bold">{{ app.appliance_name }}</td>
+                        <td>{{ app.quantity }} ta</td>
+                        <td>{{ app.power_watts }} Vt</td>
+                        <td>{{ app.hours_per_day }} soat/kun</td>
+                        <td><span class="badge bg-warning text-dark fs-6">{{ app.monthly_kwh|floatformat:1 }} kVt</span>
+                        </td>
+                        <td><small class="text-success"><i class="text-body-secondary">{{
+                            app.auto_tip|default:"Kutilmoqda..." }}</i></small></td>
+                        <td>
+                            <a href="{% url 'delete_record' app.id %}" class="btn btn-sm btn-outline-danger"
+                               onclick="return confirm('Rostdan ham o\'chirmoqchimisiz?');">🗑</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ================= MODALLAR ================= -->
+    <div class="modal fade" id="locationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-primary text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">📍 {% trans "Yangi Obyekt Qo'shish" %}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_location" value="1">
+                        {{ location_form.as_p }}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold">{% trans "Saqlash" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="applianceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header bg-success text-white rounded-top-4">
+                    <h5 class="modal-title fw-bold">⚡ {% trans "Yangi Jihoz Qo'shish" %}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    {% if not locations %}
+                    <div class="alert alert-danger">
+                        {% trans "Avval o'zingizga Uy yoki Korxona obyektini qo'shishingiz kerak!" %}
+                    </div>
+                    {% else %}
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_appliance" value="1">
+                        {{ appliance_form.as_p }}
+                        {% if appliance_form.errors %}
+                        <div class="text-danger small mt-2">
+                            {{ appliance_form.hours_per_day.errors }}
+                        </div>
+                        {% endif %}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-success btn-lg fw-bold">
+                                {% trans "Hisoblash va Qo'shish" %}
+                            </button>
+                        </div>
+                    </form>
                     {% endif %}
                 </div>
-
-                {% if records %}
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
-                        <tr>
-                            <th>Jihoz</th>
-                            <th>Soni</th>
-                            <th>Quvvat (1 ta)</th>
-                            <th>Vaqt</th>
-                            <th>Oylik sarf</th>
-                            <th>CO2 Izi</th>
-                            <th>Amal</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for item in records %}
-                        <tr>
-                            <td class="fw-bold">{{ item.appliance_name }}</td>
-                            <td><span class="badge bg-secondary">{{ item.quantity }} ta</span></td>
-                            <td>{{ item.power_watts }} Vt</td>
-                            <td>{{ item.hours_per_day }} s/kun</td>
-                            <td class="text-primary fw-bold">{{ item.monthly_kwh }} kVt·s</td>
-                            <td class="text-danger fw-bold">{{ item.co2_footprint }} kg</td>
-                            <td>
-                                <a href="{% url 'delete_record' item.id %}" class="btn btn-outline-danger btn-sm">❌</a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td colspan="7" class="border-bottom-0 pt-0 pb-3">
-                                <div class="alert alert-light border-start border-success border-4 py-2 px-3 mb-1 small text-muted bg-body-tertiary">
-                                    💡 <b>Aqlli maslahat:</b> {{ item.auto_tip }}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <p class="text-muted text-center my-4">Hali hech qanday jihoz kiritilmadi. Hisob-kitobni boshlash uchun
-                    chap tomondagi formadan foydalaning.</p>
-                {% endif %}
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- ================= JAVASCRIPT VA CHART.JS ================= -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const rawLabels = '{{ chart_labels|safe }}';
+            const rawKwh = '{{ chart_kwh|safe }}';
+            const rawCo2 = '{{ chart_co2|safe }}'; // CO2 ma'lumotlarini qabul qilish
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // 1. Jadvaldan ma'lumotlarni yig'ib olish (views.py ga tegmaslik uchun)
-    const labels = [];
-    const kwhData = [];
-    const co2Data = [];
+            if (rawLabels !== '[]' && rawLabels !== '') {
+                const labels = JSON.parse(rawLabels);
+                const kwhData = JSON.parse(rawKwh);
+                const co2Data = JSON.parse(rawCo2);
 
-    // Sahifadagi barcha qatorlarni topamiz
-    const rows = document.querySelectorAll("table tbody tr");
+                // 1. Elektr sarfi doiraviy grafiki
+                const ctxEnergy = document.getElementById('energyChart');
+                if (ctxEnergy) {
+                    new Chart(ctxEnergy.getContext('2d'), {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: kwhData,
+                                backgroundColor: [
+                                    '#4e73df', '#1cc88a', '#f6c23e', '#e74a3b',
+                                    '#858796', '#36b9cc', '#5a5c69', '#2e59d9'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {position: 'right'},
+                                title: {
+                                    display: true,
+                                    text: '{% trans "Elektr sarfi ulushi (kVt·s)" %}',
+                                    font: {size: 18, weight: 'bold'}
+                                }
+                            }
+                        }
+                    });
+                }
 
-    rows.forEach(row => {
-        const cols = row.querySelectorAll("td");
-        // Faqat ma'lumot bor qatorlarni (ustunlari 7 ta bo'lganini) ajratib olamiz
-        if(cols.length === 7) {
-            labels.push(cols[0].innerText.trim());
-            // Matn ichidan (masalan "192.0 kVt·s") faqat raqamni sug'urib olamiz
-            kwhData.push(parseFloat(cols[4].innerText.replace(/[^\d.-]/g, '')));
-            co2Data.push(parseFloat(cols[5].innerText.replace(/[^\d.-]/g, '')));
-        }
-    });
+                // 2. CO2 Izi ustunli grafiki
+                const ctxCo2 = document.getElementById('co2Chart');
+                if (ctxCo2) {
+                    new Chart(ctxCo2.getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'CO2 izi (kg)',
+                                data: co2Data,
+                                backgroundColor: '#e74a3b', // Rasmdagidek qizil rang
+                                borderRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {display: false},
+                                title: {
+                                    display: true,
+                                    text: '{% trans "Qurilmalarning CO2 izi (kg)" %}',
+                                    font: {size: 18, weight: 'bold'}
+                                }
+                            },
+                            scales: {
+                                y: {beginAtZero: true}
+                            }
+                        }
+                    });
+                }
+            }
 
-    // 2. Agar jadvalda ma'lumot bo'lsa, grafiklarni chizamiz
-    if (labels.length > 0) {
-        const bgColors = [
-            'rgba(25, 135, 84, 0.8)',
-            'rgba(13, 110, 253, 0.8)',
-            'rgba(255, 193, 7, 0.8)',
-            'rgba(220, 53, 69, 0.8)',
-            'rgba(111, 66, 193, 0.8)',
-            'rgba(23, 162, 184, 0.8)'
-        ];
-
-        // Doiraviy grafik (Elektr sarfi ulushi)
-        const ctxKwh = document.getElementById('kwhChart');
-        if (ctxKwh) {
-            new Chart(ctxKwh.getContext('2d'), {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: kwhData,
-                        backgroundColor: bgColors,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right' } }
+            document.querySelectorAll('input, select').forEach(el => {
+                if (!el.classList.contains('form-control') && !el.classList.contains('form-select')) {
+                    if (el.tagName === 'SELECT') el.classList.add('form-select');
+                    else if (el.type !== 'hidden' && el.type !== 'checkbox') el.classList.add('form-control');
                 }
             });
-        }
-
-        // Ustunli grafik (CO2 izi)
-        const ctxCo2 = document.getElementById('co2Chart');
-        if (ctxCo2) {
-            new Chart(ctxCo2.getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'CO2 Izi (kg)',
-                        data: co2Data,
-                        backgroundColor: 'rgba(220, 53, 69, 0.8)',
-                        borderRadius: 5
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
-            });
-        }
-    }
-
-    // Formadagi inputlarni chiroyli qilish uchun avtomatik Bootstrap klass qo'shish
-    document.querySelectorAll('form input, form select').forEach(input => {
-        input.classList.add('form-control');
-    });
-});
-</script>
-
-{% endblock %}
+        });
+    </script>
+    {% endblock %}

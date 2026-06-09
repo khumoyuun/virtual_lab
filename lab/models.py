@@ -2,6 +2,9 @@ import google.generativeai as genai
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import User
+from django.db import models
+from django.contrib.auth.models import User
+import google.generativeai as genai
 
 
 class Appliance(models.Model):
@@ -11,6 +14,38 @@ class Appliance(models.Model):
 
     def __str__(self):
         return self.name
+
+
+# 1. Yangi: Uy yoki Korxona uchun model
+
+
+class Location(models.Model):
+    LOCATION_TYPES = (
+        ('home', ('Uy')),  # _() qavsga olindi
+        ('business', ('Korxona')),  # _() qavsga olindi
+    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100, help_text=("Masalan: Asosiy uy, Do'kon, Sex"))  # _() qavsga olindi
+    location_type = models.CharField(max_length=20, choices=LOCATION_TYPES, default='home')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.get_location_type_display()})"
+
+
+class Appliance(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, null=True, blank=True)
+    appliance_name = models.CharField(max_length=100)
+    quantity = models.PositiveIntegerField(default=1)
+    power_watts = models.FloatField()
+    hours_per_day = models.FloatField()
+    monthly_kwh = models.FloatField(null=True, blank=True)
+    co2_footprint = models.FloatField(null=True, blank=True)
+    auto_tip = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        return self.appliance_name
 
 
 class ConsumptionRecord(models.Model):

@@ -1,0 +1,244 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-08 16:01+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "O'zbekcha"
+msgstr "Uzbek"
+
+msgid "Русский"
+msgstr "Russian"
+
+msgid "English"
+msgstr "English"
+
+msgid "Laboratoriya"
+msgstr "Laboratory"
+
+msgid "📚 Eko-Qo'llanma"
+msgstr "📚 Eco-Guide"
+
+msgid "☀️ Kunduzgi Rejim"
+msgstr "☀️ Light Mode"
+
+msgid "🌙 Tungi Rejim"
+msgstr "🌙 Dark Mode"
+
+msgid "Salom,"
+msgstr "Hello,"
+
+msgid "Chiqish"
+msgstr "Logout"
+
+msgid "Kirish"
+msgstr "Login"
+
+msgid "Ro'yxatdan o'tish"
+msgstr "Register"
+
+msgid "Asosiy Panel"
+msgstr "Dashboard"
+
+msgid "Energiya sarfini aqlli boshqaring"
+msgstr "Manage energy consumption smartly"
+
+msgid "Excelga yuklash"
+msgstr "Download to Excel"
+
+msgid "Uy/Korxona qo'shish"
+msgstr "Add Home/Business"
+
+msgid "Jihoz qo'shish"
+msgstr "Add Appliance"
+
+msgid "Umumiy Oylik Sarf"
+msgstr "Total Monthly Consumption"
+
+msgid "Oylik Xarajat (Kutilayotgan)"
+msgstr "Monthly Cost (Expected)"
+
+msgid "CO2 Izi (Tabiatga zarar)"
+msgstr "CO2 Footprint (Environmental Impact)"
+
+msgid "Xarajatlar Prognozi"
+msgstr "Cost Forecast"
+
+msgid "Davr"
+msgstr "Period"
+
+msgid "Sarf"
+msgstr "Consumption"
+
+msgid "Xarajat"
+msgstr "Cost"
+
+msgid "1 Oylik"
+msgstr "1 Month"
+
+msgid "3 Oylik"
+msgstr "3 Months"
+
+msgid "6 Oylik"
+msgstr "6 Months"
+
+msgid "1 Yillik"
+msgstr "1 Year"
+
+msgid "Obyektlar bo'yicha jihozlar"
+msgstr "Appliances by Location"
+
+msgid "Sizda hali hech qanday obyekt (Uy yoki Korxona) yo'q."
+msgstr "You don't have any locations (Home or Business) yet."
+
+msgid "Umumiy ro'yxat"
+msgstr "General List"
+
+msgid "Jihoz"
+msgstr "Appliance"
+
+msgid "Soni"
+msgstr "Quantity"
+
+msgid "Quvvat"
+msgstr "Power"
+
+msgid "Vaqt"
+msgstr "Time"
+
+msgid "Oylik Sarf"
+msgstr "Monthly Consumption"
+
+msgid "Sun'iy Intellekt Maslahati"
+msgstr "AI Advice"
+
+msgid "Amal"
+msgstr "Action"
+
+msgid "Yangi Obyekt Qo'shish"
+msgstr "Add New Location"
+
+msgid "Saqlash"
+msgstr "Save"
+
+msgid "Yangi Jihoz Qo'shish"
+msgstr "Add New Appliance"
+
+msgid "Avval o'zingizga Uy yoki Korxona obyektini qo'shishingiz kerak!"
+msgstr "First, you need to add a Home or Business location!"
+
+msgid "Elektr sarfi ulushi (kVt·s)"
+msgstr "Electricity consumption share (kWh)"
+
+msgid "Qurilmalarning CO2 izi (kg)"
+msgstr "CO2 footprint of appliances (kg)"
+
+msgid "📚 Yashil Energiya va Uglerod Izi Qo'llanmasi"
+msgstr "📚 Green Energy and Carbon Footprint Guide"
+
+msgid "\n            Ushbu virtual laboratoriyaning maqsadi faqatgina sarf-xarajatlarni hisoblash emas, balki kundalik hayotimizda oddiy odatlarni o'zgartirish orqali tabiatni asrashga hissa qo'shishdir.\n            "
+msgstr "\n            The purpose of this virtual laboratory is not only to calculate expenses but also to contribute to nature conservation by changing simple everyday habits.\n            "
+
+msgid "\"Kutish rejimi\" (Standby) siri"
+msgstr "The secret of \"Standby\" mode"
+
+msgid "\n                    Ko'pchilik jihozlar (TV, kompyuter, zaryadchilar) o'chirilgan holatda ham rozetkaga suqilgan bo'lsa, energiya sarflashda davom etadi. Buni \"vampir energiya\" deb atashadi. Ularni to'liq uzib qo'yish orqali umumiy sarfni 5-10% gacha kamaytirish mumkin.\n                    "
+msgstr "\n                    Many appliances (TV, computers, chargers) continue to consume energy even when turned off if plugged in. This is called \"vampire energy\". By completely unplugging them, total consumption can be reduced by 5-10%.\n                    "
+
+msgid "Yoritish tizimlari"
+msgstr "Lighting systems"
+
+msgid "\n                    An'anaviy cho'g'lanma lampalarni LED lampalarga almashtiring. LED lampalar 80% gacha kamroq energiya sarflaydi va 25 barobar uzoqroq xizmat qiladi. Bu eng tez va samarali tejamkorlik usulidir.\n                    "
+msgstr "\n                    Replace traditional incandescent bulbs with LED bulbs. LED bulbs consume up to 80% less energy and last 25 times longer. This is the fastest and most effective way to save.\n                    "
+
+msgid "Katta jihozlardan to'g'ri foydalanish"
+msgstr "Proper use of large appliances"
+
+msgid "\n                    Muzlatgich haroratini +4°C, muzxonasini esa -18°C da saqlang. Eshigini uzoq ochiq qoldirmang. Kir yuvish mashinasini faqat to'liq yuklama bilan va pastroq haroratda (30-40°C) ishlating, chunki energiyaning 90% suvni isitishga ketadi.\n                    "
+msgstr "\n                    Keep the refrigerator temperature at +4°C and the freezer at -18°C. Do not leave the door open for long. Use the washing machine only with a full load and at a lower temperature (30-40°C), as 90% of the energy goes to heating the water.\n                    "
+
+msgid "Uglerod izi (CO2 Footprint) nima?"
+msgstr "What is a Carbon Footprint (CO2)?"
+
+msgid "\n                    Elektr stansiyalarida energiya ishlab chiqarish uchun asosan gaz va ko'mir yoqiladi. Siz qancha ko'p tok ishlatsangiz, havoga shuncha ko'p issiqxona gazi (CO2) ko'tariladi. O'zbekiston sharoitida o'rtacha 1 kVt·soat energiya 0.5 kg CO2 hosil qiladi.\n                    "
+msgstr "\n                    Gas and coal are mainly burned to produce energy in power plants. The more electricity you use, the more greenhouse gas (CO2) rises into the air. In Uzbekistan, an average of 1 kWh of energy produces 0.5 kg of CO2.\n                    "
+
+msgid "Laboratoriya xulosasi:"
+msgstr "Laboratory conclusion:"
+
+msgid "\n                Olingan bilimlarni Dashboard sahifasida sinab ko'ring. Jihozlarning ishlash soatini bir necha soatga qisqartirib, grafiklarda CO2 miqdori qanchalik tez tushishini o'z ko'zingiz bilan kuzating!\n                "
+msgstr "\n                Test the acquired knowledge on the Dashboard page. Reduce the working hours of appliances by a few hours and watch with your own eyes how quickly the CO2 amount drops on the charts!\n                "
+
+msgid "Obyekt"
+msgstr "Location"
+
+msgid "Asosiy panelga (Dashboard) o'tish"
+msgstr "Go to Dashboard"
+
+msgid "Tizimga kirish"
+msgstr "System Login"
+
+msgid "Akkauntingiz yo'qmi?"
+msgstr "Don't have an account?"
+
+msgid "A'zo bo'lish"
+msgstr "Sign Up"
+
+msgid "Akkauntingiz bormi?"
+msgstr "Already have an account?"
+
+msgid "Tizimga kiring"
+msgstr "Log in"
+
+msgid "Ixtiyoriy"
+msgstr "Optional"
+
+msgid "Obyekt nomi"
+msgstr "Location Name"
+
+msgid "Turi"
+msgstr "Type"
+
+msgid "Masalan: Asosiy uy, Yozgi hovli, Do'kon..."
+msgstr "e.g., Main house, Summer house, Shop..."
+
+msgid "Qaysi obyektga qo'shilmoqda?"
+msgstr "Which location is it being added to?"
+
+msgid "Jihoz nomi"
+msgstr "Appliance Name"
+
+msgid "Quvvati (Vatt)"
+msgstr "Power (Watts)"
+
+msgid "Kunlik ishlash vaqti (Soat)"
+msgstr "Daily operating time (Hours)"
+
+msgid "Masalan: Muzlatgich..."
+msgstr "e.g., Refrigerator..."
+
+msgid "Xato: Bir kunda 24 soatdan ko'p vaqt bo'lishi mumkin emas!"
+msgstr "Error: Time cannot exceed 24 hours a day!"
+
+msgid "Xato: Vaqt manfiy raqam bo'lishi mumkin emas!"
+msgstr "Error: Time cannot be negative!"
+
+msgid "Uy"
+msgstr "Home"
+
+msgid "Korxona"
+msgstr "Business"
+
+msgid "Masalan: Asosiy uy, Do'kon, Sex"
+msgstr "e.g., Main house, Shop, Workshop"
+
+msgid "Hisoblash va Qo'shish"
+msgstr "Calculate and Add"

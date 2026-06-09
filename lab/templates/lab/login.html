@@ -7,19 +7,26 @@
         <div class="card shadow-sm border-0">
             <div class="card-body p-4">
                 <h4 class="card-title text-center mb-4 text-success fw-bold">{% trans "Tizimga kirish" %}</h4>
+                {% if form.errors %}
+                <div class="alert alert-danger shadow-sm border-0" role="alert">
+                    <strong>⚠️ Xatolik:</strong> Kiritilgan login yoki parol noto'g'ri. Iltimos, qaytadan urinib
+                    ko'ring.
+                </div>
+                {% endif %}
                 <form method="POST">
                     {% csrf_token %}
                     {% for field in form %}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold text-secondary">{{ field.label }}</label>
-                            {{ field }}
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
                     {% endfor %}
                     <button type="submit" class="btn btn-success w-100 mt-3 fw-bold">{% trans "Kirish" %}</button>
                 </form>
                 <div class="text-center mt-4 small">
                     <span class="text-muted">{% trans "Akkauntingiz yo'qmi?" %}</span>
-                    <a href="{% url 'register' %}" class="text-success fw-bold text-decoration-none">{% trans "Ro'yxatdan o'ting" %}</a>
+                    <a href="{% url 'register' %}" class="text-success fw-bold text-decoration-none">{% trans
+                        "Ro'yxatdan o'ting" %}</a>
                 </div>
             </div>
         </div>

@@ -1,0 +1,37 @@
+{% load i18n %}
+<div class="table-responsive">
+    <table class="table table-hover align-middle mt-2">
+        <thead class="table-light">
+            <tr>
+                {% if show_location %}<th>📍 {% trans "Obyekt" %}</th>{% endif %}
+                <th>{% trans "Jihoz" %}</th>
+                <th>{% trans "Soni" %}</th>
+                <th>{% trans "Quvvat" %}</th>
+                <th>{% trans "Vaqt" %}</th>
+                <th>{% trans "Oylik Sarf" %}</th>
+                <th>{% trans "Sun'iy Intellekt Maslahati" %}</th>
+                <th>{% trans "Amal" %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for app in app_list %}
+            <tr>
+                {% if show_location %}
+                    <td class="text-primary fw-semibold">
+                        {% if app.location %}{{ app.location.name }}{% else %}Noma'lum{% endif %}
+                    </td>
+                {% endif %}
+                <td class="fw-bold">{{ app.appliance_name }}</td>
+                <td>{{ app.quantity }} ta</td>
+                <td>{{ app.power_watts }} Vt</td>
+                <td>{{ app.hours_per_day }} soat/kun</td>
+                <td><span class="badge bg-warning text-dark fs-6">{{ app.monthly_kwh|floatformat:1 }} kVt</span></td>
+                <td><small class="text-success"><i class="text-body-secondary">{{ app.auto_tip|default:"Kutilmoqda..." }}</i></small></td>
+                <td>
+                    <a href="{% url 'delete_record' app.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Rostdan ham o\'chirmoqchimisiz?');">🗑</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

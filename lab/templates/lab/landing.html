@@ -1,0 +1,54 @@
+{% extends 'lab/base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row align-items-center rounded-4 border shadow-sm p-4 p-lg-5 text-center bg-body-tertiary mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="display-3 mb-3">🌍⚡</div>
+            <h1 class="display-5 fw-bold lh-1 text-body-emphasis mb-4">Elektr Sarfini Hisoblash va Optimallashtirish Laboratoriyasi</h1>
+            <p class="lead text-body-secondary mb-4">
+                Ushbu platforma orqali siz uyingiz yoki korxonangizdagi elektr jihozlarining sarfini hisoblashingiz, xarajatlarni aniq prognoz qilishingiz va Sun'iy Intellekt (AI) yordamida elektr energiyasini tejash bo'yicha shaxsiy maslahatlar olishingiz mumkin.
+            </p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'dashboard' %}" class="btn btn-success btn-lg px-4 me-sm-3 shadow-sm fw-semibold">📊 {% trans "Asosiy panelga (Dashboard) o'tish" %}</a>
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-success btn-lg px-4 me-sm-3 shadow-sm fw-semibold">{% trans "Kirish" %}</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg px-4 fw-semibold">{% trans "Ro'yxatdan o'tish" %}</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 py-3 row-cols-1 row-cols-lg-3">
+        <div class="col d-flex align-items-start">
+            <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-2 flex-shrink-0 me-3 p-3 rounded-3 border">
+                📈
+            </div>
+            <div>
+                <h3 class="fs-5 fw-bold text-body-emphasis">Aniq Hisob-kitob</h3>
+                <p class="text-body-secondary text-start">Elektr jihozlarining quvvati va ishlash vaqtiga qarab kunlik, oylik va yillik sarflarni avtomatik hisoblab beradi. Ma'lumotlarni Excel formatda yuklab olish imkoniyati mavjud.</p>
+            </div>
+        </div>
+        <div class="col d-flex align-items-start">
+            <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-2 flex-shrink-0 me-3 p-3 rounded-3 border">
+                🤖
+            </div>
+            <div>
+                <h3 class="fs-5 fw-bold text-body-emphasis">Sun'iy Intellekt Maslahatlari</h3>
+                <p class="text-body-secondary text-start">Google AI tizimi ma'lumotlarni tahlil qilib, energiyani tejash bo'yicha aynan sizning jihozlaringiz va odatlaringizga mos aqlli yechimlar ishlab chiqadi.</p>
+            </div>
+        </div>
+        <div class="col d-flex align-items-start">
+            <div class="icon-square text-body-emphasis bg-body-secondary d-inline-flex align-items-center justify-content-center fs-2 flex-shrink-0 me-3 p-3 rounded-3 border">
+                🏢
+            </div>
+            <div>
+                <h3 class="fs-5 fw-bold text-body-emphasis">Uylar va Korxonalar Boshqaruvi</h3>
+                <p class="text-body-secondary text-start">Bitta akkaunt orqali bir nechta uylar yoki korxonalar filiallaringizni alohida boshqaring va har birining sarfini monitoring qiling.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
