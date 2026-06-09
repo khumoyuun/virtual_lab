@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 import openpyxl
 from openpyxl.styles import Font, Alignment
-import google.generativeai as genai
 from .forms import UserRegisterForm, ApplianceForm, LocationForm
 from django.utils.translation import get_language
 
@@ -103,30 +102,43 @@ def dashboard(request):
                 new_app = appliance_form.save(commit=False)
                 new_app.user = request.user
 
-                # Oylik energiya va CO2 sarfini avtomatik hisoblash
-                daily_kwh = (new_app.power_watts * new_app.hours_per_day) / 1000
-                new_app.monthly_kwh = daily_kwh * 30 * new_app.quantity
-                new_app.co2_footprint = new_app.monthly_kwh * 0.4
-
                 # --- AI Maslahat qismi (Tillarga moslashtirilgan) ---
                 current_lang = get_language()
 
                 if current_lang == 'ru':
-                    prompt = f"В моем объекте '{new_app.location.name}' устройство '{new_app.appliance_name}' мощностью {new_app.power_watts} Вт работает {new_app.hours_per_day} часов в день. Дай 1-2 кратких совета по энергосбережению на русском языке."
+                    prompt = f"В моем объекте '{new_app.location.name}' устройство '{new_app.appliance_name}' мощностью {new_app.power_watts} Вт работает {new_app.hours_per_day} часов в день. Дай 1 краткий совет по энергосбережению на русском языке."
                 elif current_lang == 'en':
-                    prompt = f"In my location '{new_app.location.name}', the appliance '{new_app.appliance_name}' ({new_app.power_watts} watts) runs for {new_app.hours_per_day} hours a day. Provide 1-2 short energy-saving tips in English."
+                    prompt = f"In my location '{new_app.location.name}', the appliance '{new_app.appliance_name}' ({new_app.power_watts} watts) runs for {new_app.hours_per_day} hours a day. Provide 1 short energy-saving tip in English."
                 else:
-                    prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1-2 ta qisqa maslahatni o'zbek tilida ber."
+                    prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1 ta qisqa maslahatni o'zbek tilida ber."
 
                 try:
-                    genai.configure(api_key=settings.GEMINI_API_KEY)
-                    # O'zimizning ishonchli va ishlagan modelimizga qaytdik
-                    model = genai.GenerativeModel('gemini-pro')
-                    response = model.generate_content(prompt)
-                    new_app.auto_tip = response.text
+                    import requests  # Standart internetga ulanish kutubxonasi
+
+                    # To'g'ridan-to'g'ri Google API manziliga murojaat qilamiz (hech qanday kutubxonasiz)
+                    api_key = settings.GEMINI_API_KEY
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+
+                    headers = {'Content-Type': 'application/json'}
+                    payload = {
+                        "contents": [{"parts": [{"text": prompt}]}]
+                    }
+
+                    # So'rovni yuborish
+                    response = requests.post(url, headers=headers, json=payload)
+
+                    # Agar ulanish muvaffaqiyatli bo'lsa (200 OK)
+                    if response.status_code == 200:
+                        data = response.json()
+                        new_app.auto_tip = data['candidates'][0]['content']['parts'][0]['text']
+                    else:
+                        # Agar Google API kalitni qabul qilmasa, aniq sababini yozadi
+                        new_app.auto_tip = f"API Xatosi: {response.text[:100]}"
+
                 except Exception as e:
-                    new_app.auto_tip = f"Server xatosi: {str(e)[:100]}..."
+                    new_app.auto_tip = f"Ulanish xatosi: {str(e)[:100]}..."
                 # ---------------------------------------------------
+                
 
                 new_app.save()
                 return redirect('dashboard')
