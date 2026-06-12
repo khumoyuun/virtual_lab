@@ -119,7 +119,7 @@ def dashboard(request):
                     client = genai.Client(api_key=api_key)
 
                     response = client.models.generate_content(
-                        model='gemini-1.5-flash',
+                        model='gemini-2.0-flash',
                         contents=prompt,
                     )
 
@@ -127,7 +127,7 @@ def dashboard(request):
 
                 except Exception as e:
                     kalit_boshi = str(settings.GEMINI_API_KEY)[:15]
-                    new_app.auto_tip = f"Serverdagi kalit: {kalit_boshi}... Xato: {str(e)[:70]}"
+                    new_app.auto_tip = f"Serverdagi kalit: {kalit_boshi}... Xato: {str(e)[:250]}"
                 # ===================================================
 
                 new_app.save()
