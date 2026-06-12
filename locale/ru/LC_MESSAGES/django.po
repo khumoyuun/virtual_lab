@@ -328,3 +328,19 @@ msgstr "Бизнес"
 
 msgid "Masalan: Asosiy uy, Do'kon, Sex"
 msgstr "Например: Дом, Магазин, Цех"
+
+
+msgid "ta"
+msgstr "шт"
+
+msgid "Vt"
+msgstr "Вт"
+
+msgid "soat/kun"
+msgstr "часов/день"
+
+msgid "Kutilmoqda..."
+msgstr "Ожидается..."
+
+msgid "Rostdan ham o'chirmoqchimisiz?"
+msgstr "Вы действительно хотите удалить?"

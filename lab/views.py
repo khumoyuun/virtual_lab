@@ -113,32 +113,30 @@ def dashboard(request):
                     prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1 ta qisqa maslahatni o'zbek tilida ber."
 
                 try:
-                    import requests  # Standart internetga ulanish kutubxonasi
+                    import requests
 
-                    # To'g'ridan-to'g'ri Google API manziliga murojaat qilamiz (hech qanday kutubxonasiz)
                     api_key = settings.GEMINI_API_KEY
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-
+                    # Rasmiy va barqaror model: gemini-1.5-flash
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
                     headers = {'Content-Type': 'application/json'}
                     payload = {
                         "contents": [{"parts": [{"text": prompt}]}]
                     }
 
-                    # So'rovni yuborish
                     response = requests.post(url, headers=headers, json=payload)
 
-                    # Agar ulanish muvaffaqiyatli bo'lsa (200 OK)
                     if response.status_code == 200:
                         data = response.json()
                         new_app.auto_tip = data['candidates'][0]['content']['parts'][0]['text']
                     else:
-                        # Agar Google API kalitni qabul qilmasa, aniq sababini yozadi
-                        new_app.auto_tip = f"API Xatosi: {response.text[:100]}"
+                        # Xatoni aniq o'qish uchun:
+                        error_data = response.json()
+                        error_msg = error_data.get('error', {}).get('message', response.text)
+                        new_app.auto_tip = f"API Xatosi: {error_msg[:100]}"
 
                 except Exception as e:
-                    new_app.auto_tip = f"Ulanish xatosi: {str(e)[:100]}..."
+                    new_app.auto_tip = f"Ulanish xatosi: {str(e)[:100]}"
                 # ---------------------------------------------------
-                
 
                 new_app.save()
                 return redirect('dashboard')

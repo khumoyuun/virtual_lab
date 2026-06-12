@@ -71,9 +71,6 @@ msgstr "Social norm (Differential tariff)"
 msgid "1 Oylik"
 msgstr "1 Month"
 
-msgid "kVt·s"
-msgstr "kWh"
-
 msgid "so'm"
 msgstr "sum"
 
@@ -330,3 +327,22 @@ msgstr "Business"
 
 msgid "Masalan: Asosiy uy, Do'kon, Sex"
 msgstr "e.g., Home, Shop, Workshop"
+
+
+msgid "ta"
+msgstr "pcs"
+
+msgid "Vt"
+msgstr "W"
+
+msgid "soat/kun"
+msgstr "hours/day"
+
+msgid "kVt·s"
+msgstr "kWh"
+
+msgid "Kutilmoqda..."
+msgstr "Waiting..."
+
+msgid "Rostdan ham o'chirmoqchimisiz?"
+msgstr "Are you sure you want to delete?"

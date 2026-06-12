@@ -26,7 +26,6 @@ SECRET_KEY = 'django-insecure-#c!fd0-^kpyib+37wc1tqw2zuw6vn9thy=-0&9#xbgz8x4+mzw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
@@ -129,7 +128,7 @@ LOCALE_PATHS = [
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-GEMINI_API_KEY = "bu yerga api kaliti qo'yiladi"
+GEMINI_API_KEY = "AQ.Ab8RN6IEE5eBs_RLeto2SYRZJHX_Eqc9mEai1-AnNCb84DAEoA"
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'landing'

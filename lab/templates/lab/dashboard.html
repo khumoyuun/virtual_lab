@@ -196,18 +196,19 @@
                     <tbody>
                     {% for app in appliances %}
                     {% if app.location.id == loc.id %}
+                    {% trans "Kutilmoqda..." as kutilmoqda_text %}
                     <tr>
                         <td class="fw-bold">{{ app.appliance_name }}</td>
-                        <td>{{ app.quantity }} ta</td>
-                        <td>{{ app.power_watts }} Vt</td>
-                        <td>{{ app.hours_per_day }} soat/kun</td>
-                        <td><span class="badge bg-warning text-dark fs-6">{{ app.monthly_kwh|floatformat:1 }} kVt</span>
+                        <td>{{ app.quantity }} {% trans "ta" %}</td>
+                        <td>{{ app.power_watts }} {% trans "Vt" %}</td>
+                        <td>{{ app.hours_per_day }} {% trans "soat/kun" %}</td>
+                        <td><span class="badge bg-warning text-dark fs-6">{{ app.monthly_kwh|floatformat:1 }} {% trans "kVt·s" %}</span>
                         </td>
                         <td><small class="text-success"><i class="text-body-secondary">{{
-                            app.auto_tip|default:"Kutilmoqda..." }}</i></small></td>
+                            app.auto_tip|default:kutilmoqda_text }}</i></small></td>
                         <td>
                             <a href="{% url 'delete_record' app.id %}" class="btn btn-sm btn-outline-danger"
-                               onclick="return confirm('Rostdan ham o\'chirmoqchimisiz?');">🗑</a>
+                               onclick="return confirm('{% trans " Rostdan ham o/'chirmoqchimisiz?" %}');">🗑</a>
                         </td>
                     </tr>
                     {% endif %}

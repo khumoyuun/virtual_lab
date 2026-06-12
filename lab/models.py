@@ -4,8 +4,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.auth.models import User
-import google.generativeai as genai
-
+from google import genai
 
 class Appliance(models.Model):
     name = models.CharField(max_length=100, verbose_name="Qurilma nomi")
