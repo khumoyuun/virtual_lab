@@ -10,7 +10,6 @@ from openpyxl.styles import Font, Alignment
 from .forms import UserRegisterForm, ApplianceForm, LocationForm
 from django.utils.translation import get_language
 
-# Eski ConsumptionRecordForm o'rniga yangi formalar va modellar chaqirilmoqda
 from .models import Appliance, Location
 
 
@@ -18,7 +17,6 @@ def landing_page(request):
     return render(request, 'lab/landing.html')
 
 
-# --- Sonlarni chiroyli formatlash uchun yordamchi funksiyalar ---
 def format_money(amount):
     return f"{int(amount):,}".replace(",", " ")
 
@@ -27,7 +25,6 @@ def format_kwh(amount):
     return f"{amount:.1f}"
 
 
-# --- Differensial tarif hisoblash funksiyasi (2026-yil 1-iyundan keyin) ---
 def calculate_monthly_cost(kwh):
     if kwh <= 0:
         return 0
@@ -80,12 +77,10 @@ def logout_view(request):
 
 @login_required(login_url='login')
 def dashboard(request):
-    # Foydalanuvchiga tegishli Uylar/Korxonalar va barcha jihozlar
     locations = Location.objects.filter(user=request.user)
     appliances = Appliance.objects.filter(user=request.user).order_by('-id')
 
     if request.method == 'POST':
-        # 1. Yangi Obyekt (Uy/Korxona) qo'shish
         if 'add_location' in request.POST:
             location_form = LocationForm(request.POST)
             if location_form.is_valid():
@@ -94,24 +89,15 @@ def dashboard(request):
                 new_loc.save()
                 return redirect('dashboard')
 
-        # 2. Mavjud obyektga yangi Jihoz qo'shish
         elif 'add_appliance' in request.POST:
             appliance_form = ApplianceForm(request.POST, user=request.user)
             if appliance_form.is_valid():
                 new_app = appliance_form.save(commit=False)
                 new_app.user = request.user
 
-                # ===================================================
-                #  YETISHMAYOTGAN MATEMATIK FORMULALAR
-                # ===================================================
-                # 1 oylik sarf (kVt·s) = (Watt * Soat / 1000) * Soni * 30 kun
                 new_app.monthly_kwh = (new_app.power_watts * new_app.hours_per_day / 1000) * new_app.quantity * 30
-
-                # CO2 Izi = kVt·s * 0.5 (Atrof-muhitga ta'sir koeffitsiyenti)
                 new_app.co2_footprint = new_app.monthly_kwh * 0.5
-                # ===================================================
 
-                # --- AI Maslahat qismi (Tillarga moslashtirilgan) ---
                 current_lang = get_language()
 
                 if current_lang == 'ru':
@@ -121,33 +107,47 @@ def dashboard(request):
                 else:
                     prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1 ta qisqa maslahatni o'zbek tilida ber."
 
-                # O'zimizning original (ishlaydigan) kutubxonaga qaytdik
+                # ===================================================
+                #  YANGI "AQ" KALITLARNI ALDAB O'TISH USULI
+                # ===================================================
                 try:
-                    from google import genai
+                    import requests
 
-                    # Kalitni shu yerning o'zida ochiq beramiz
                     api_key = "AQ.Ab8RN6IEE5eBs_RLeto2SYRZJHX_Eqc9mEai1-AnNCb84DAEoA"
-                    client = genai.Client(api_key=api_key)
 
-                    response = client.models.generate_content(
-                        model='gemini-1.5-flash',
-                        contents=prompt,
-                    )
+                    # URL oxiriga QAT'IYAN ?key= qo'shilmaydi
+                    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
-                    new_app.auto_tip = response.text
+                    # Kalit faqat shu yerda (Header ichida) yuboriladi
+                    headers = {
+                        'Content-Type': 'application/json',
+                        'x-goog-api-key': api_key
+                    }
+
+                    payload = {
+                        "contents": [{"parts": [{"text": prompt}]}]
+                    }
+
+                    response = requests.post(url, headers=headers, json=payload)
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        new_app.auto_tip = data['candidates'][0]['content']['parts'][0]['text']
+                    else:
+                        error_data = response.json()
+                        error_msg = error_data.get('error', {}).get('message', response.text)
+                        new_app.auto_tip = f"API Xatosi: {error_msg[:100]}"
 
                 except Exception as e:
-                    new_app.auto_tip = f"AI Xatosi: {str(e)[:100]}"
-                # ---------------------------------------------------
+                    new_app.auto_tip = f"Ulanish xatosi: {str(e)[:100]}"
+                # ===================================================
 
                 new_app.save()
                 return redirect('dashboard')
 
-    # GET so'rovi uchun bo'sh formalar
     location_form = LocationForm()
     appliance_form = ApplianceForm(user=request.user)
 
-    # Hisob-kitoblar va Prognozlar
     total_monthly_kwh = appliances.aggregate(Sum('monthly_kwh'))['monthly_kwh__sum'] or 0
     total_co2 = appliances.aggregate(Sum('co2_footprint'))['co2_footprint__sum'] or 0
     monthly_cost = calculate_monthly_cost(total_monthly_kwh)
@@ -162,7 +162,6 @@ def dashboard(request):
                'co2': format_kwh(total_co2 * 12)},
     }
 
-    # Grafiklar uchun ma'lumot
     chart_labels = [r.appliance_name for r in appliances]
     chart_kwh = [r.monthly_kwh for r in appliances]
     chart_co2 = [r.co2_footprint for r in appliances]
