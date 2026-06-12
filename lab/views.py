@@ -127,7 +127,7 @@ def dashboard(request):
 
                 except Exception as e:
                     kalit_boshi = str(settings.GEMINI_API_KEY)[:15]
-                    new_app.auto_tip = f"Serverdagi kalit: {kalit_boshi}... Xato: {str(e)[:250]}"
+                    new_app.auto_tip = f"Serverdagi kalit: {kalit_boshi}... Xato: {str(e)[:300]}"
                 # ===================================================
 
                 new_app.save()
