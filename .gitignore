@@ -1,0 +1,33 @@
+# Python kesh fayllari
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual muhit (Virtual Environment)
+venv/
+ENV/
+env/
+.env
+
+# Mahalliy ma'lumotlar bazasi (Har safar serverga chiqib ketmasligi uchun)
+db.sqlite3
+db.sqlite3-journal
+
+# Statik va yuklangan fayllar papkasi
+staticfiles/
+media/
+
+# macOS tizimining maxfiy fayllari (Mac ishlatganingiz uchun muhim)
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE (PyCharm yoki VS Code) sozlamalari
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
