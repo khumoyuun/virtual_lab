@@ -102,6 +102,16 @@ def dashboard(request):
                 new_app = appliance_form.save(commit=False)
                 new_app.user = request.user
 
+                # ===================================================
+                #  YETISHMAYOTGAN MATEMATIK FORMULALAR (QO'SHILDI)
+                # ===================================================
+                # 1 oylik sarf (kVt·s) = (Watt * Soat / 1000) * Soni * 30 kun
+                new_app.monthly_kwh = (new_app.power_watts * new_app.hours_per_day / 1000) * new_app.quantity * 30
+
+                # CO2 Izi = kVt·s * 0.5 (Atrof-muhitga ta'sir koeffitsiyenti)
+                new_app.co2_footprint = new_app.monthly_kwh * 0.5
+                # ===================================================
+
                 # --- AI Maslahat qismi (Tillarga moslashtirilgan) ---
                 current_lang = get_language()
 
@@ -116,8 +126,8 @@ def dashboard(request):
                     import requests
 
                     api_key = settings.GEMINI_API_KEY
-                    # Rasmiy va barqaror model: gemini-1.5-flash
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={api_key}"
+                    # Rasmiy va barqaror ishlaydigan model
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
                     headers = {'Content-Type': 'application/json'}
                     payload = {
                         "contents": [{"parts": [{"text": prompt}]}]
@@ -129,7 +139,6 @@ def dashboard(request):
                         data = response.json()
                         new_app.auto_tip = data['candidates'][0]['content']['parts'][0]['text']
                     else:
-                        # Xatoni aniq o'qish uchun:
                         error_data = response.json()
                         error_msg = error_data.get('error', {}).get('message', response.text)
                         new_app.auto_tip = f"API Xatosi: {error_msg[:100]}"
@@ -145,7 +154,7 @@ def dashboard(request):
     location_form = LocationForm()
     appliance_form = ApplianceForm(user=request.user)
 
-    # Hisob-kitoblar va Prognozlar (Yangi Appliance modeli asosida)
+    # Hisob-kitoblar va Prognozlar
     total_monthly_kwh = appliances.aggregate(Sum('monthly_kwh'))['monthly_kwh__sum'] or 0
     total_co2 = appliances.aggregate(Sum('co2_footprint'))['co2_footprint__sum'] or 0
     monthly_cost = calculate_monthly_cost(total_monthly_kwh)
@@ -182,7 +191,6 @@ def dashboard(request):
 
 @login_required(login_url='login')
 def delete_record(request, pk):
-    # Eski ConsumptionRecord o'rniga yangi Appliance chaqirilmoqda
     record = get_object_or_404(Appliance, pk=pk, user=request.user)
     record.delete()
     return redirect('dashboard')
@@ -214,7 +222,6 @@ def export_excel(request):
         cell.font = Font(bold=True)
         cell.alignment = Alignment(horizontal="center", vertical="center")
 
-    # Yangi Appliance orqali ma'lumotlarni tortish
     records = Appliance.objects.filter(user=request.user)
 
     for record in records:
@@ -225,7 +232,6 @@ def export_excel(request):
         month_6 = round(monthly * 6, 2)
         yearly = round(monthly * 12, 2)
 
-        # Obyekt nomini olish (agar biriktirilmagan bo'lsa "Noma'lum" deb yoziladi)
         location_name = record.location.name if record.location else "Noma'lum"
 
         row = [
