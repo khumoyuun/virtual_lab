@@ -5,7 +5,6 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Sum
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 import openpyxl
 from openpyxl.styles import Font, Alignment
 from .forms import UserRegisterForm, ApplianceForm, LocationForm
@@ -103,7 +102,7 @@ def dashboard(request):
                 new_app.user = request.user
 
                 # ===================================================
-                #  YETISHMAYOTGAN MATEMATIK FORMULALAR (QO'SHILDI)
+                #  YETISHMAYOTGAN MATEMATIK FORMULALAR
                 # ===================================================
                 # 1 oylik sarf (kVt·s) = (Watt * Soat / 1000) * Soni * 30 kun
                 new_app.monthly_kwh = (new_app.power_watts * new_app.hours_per_day / 1000) * new_app.quantity * 30
@@ -122,29 +121,23 @@ def dashboard(request):
                 else:
                     prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1 ta qisqa maslahatni o'zbek tilida ber."
 
+                # O'zimizning original (ishlaydigan) kutubxonaga qaytdik
                 try:
-                    import requests
+                    from google import genai
 
-                    api_key = settings.GEMINI_API_KEY
-                    # Rasmiy va barqaror ishlaydigan model
-                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-                    headers = {'Content-Type': 'application/json'}
-                    payload = {
-                        "contents": [{"parts": [{"text": prompt}]}]
-                    }
+                    # Kalitni shu yerning o'zida ochiq beramiz
+                    api_key = "AQ.Ab8RN6IEE5eBs_RLeto2SYRZJHX_Eqc9mEai1-AnNCb84DAEoA"
+                    client = genai.Client(api_key=api_key)
 
-                    response = requests.post(url, headers=headers, json=payload)
+                    response = client.models.generate_content(
+                        model='gemini-1.5-flash',
+                        contents=prompt,
+                    )
 
-                    if response.status_code == 200:
-                        data = response.json()
-                        new_app.auto_tip = data['candidates'][0]['content']['parts'][0]['text']
-                    else:
-                        error_data = response.json()
-                        error_msg = error_data.get('error', {}).get('message', response.text)
-                        new_app.auto_tip = f"API Xatosi: {error_msg[:100]}"
+                    new_app.auto_tip = response.text
 
                 except Exception as e:
-                    new_app.auto_tip = f"Ulanish xatosi: {str(e)[:100]}"
+                    new_app.auto_tip = f"AI Xatosi: {str(e)[:100]}"
                 # ---------------------------------------------------
 
                 new_app.save()
