@@ -128,7 +128,7 @@ LOCALE_PATHS = [
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-GEMINI_API_KEY = "AQ.Ab8RN6IEE5eBs_RLeto2SYRZJHX_Eqc9mEai1-AnNCb84DAEoA"
+GEMINI_API_KEY = "serverda_yozamiz"
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'landing'

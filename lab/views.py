@@ -7,9 +7,10 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import openpyxl
 from openpyxl.styles import Font, Alignment
+
+from config import settings
 from .forms import UserRegisterForm, ApplianceForm, LocationForm
 from django.utils.translation import get_language
-
 from .models import Appliance, Location
 
 
@@ -111,35 +112,21 @@ def dashboard(request):
                 #  YANGI "AQ" KALITLARNI ALDAB O'TISH USULI
                 # ===================================================
                 try:
-                    import requests
+                    from google import genai
 
-                    api_key = "AQ.Ab8RN6IEE5eBs_RLeto2SYRZJHX_Eqc9mEai1-AnNCb84DAEoA"
+                    # Kalitni settings.py dan olamiz!
+                    api_key = settings.GEMINI_API_KEY
+                    client = genai.Client(api_key=api_key)
 
-                    # URL oxiriga QAT'IYAN ?key= qo'shilmaydi
-                    url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+                    response = client.models.generate_content(
+                        model='gemini-1.5-flash',
+                        contents=prompt,
+                    )
 
-                    # Kalit faqat shu yerda (Header ichida) yuboriladi
-                    headers = {
-                        'Content-Type': 'application/json',
-                        'x-goog-api-key': api_key
-                    }
-
-                    payload = {
-                        "contents": [{"parts": [{"text": prompt}]}]
-                    }
-
-                    response = requests.post(url, headers=headers, json=payload)
-
-                    if response.status_code == 200:
-                        data = response.json()
-                        new_app.auto_tip = data['candidates'][0]['content']['parts'][0]['text']
-                    else:
-                        error_data = response.json()
-                        error_msg = error_data.get('error', {}).get('message', response.text)
-                        new_app.auto_tip = f"API Xatosi: {error_msg[:100]}"
+                    new_app.auto_tip = response.text
 
                 except Exception as e:
-                    new_app.auto_tip = f"Ulanish xatosi: {str(e)[:100]}"
+                    new_app.auto_tip = f"AI Xatosi: {str(e)[:100]}"
                 # ===================================================
 
                 new_app.save()
