@@ -157,67 +157,79 @@
         o'tkazing." %}
     </div>
     {% else %}
-    <ul class="nav nav-tabs fw-semibold" id="locationTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active text-success" id="all-tab" data-bs-toggle="tab" data-bs-target="#all"
-                    type="button" role="tab">
+    <ul class="nav nav-tabs fw-semibold" id="locationTabs">
+        <!-- 1. Umumiy ro'yxat havolasi -->
+        <li class="nav-item">
+            <a href="{% url 'dashboard' %}"
+               class="nav-link {% if not request.GET.location %}active text-success{% else %}text-body-emphasis{% endif %}">
                 📋 {% trans "Umumiy ro'yxat" %}
-            </button>
+            </a>
         </li>
+        <!-- 2. Obyektlar ro'yxati (URL ni o'zgartiruvchi havolalar) -->
         {% for loc in locations %}
-        <li class="nav-item" role="presentation">
-            <button class="nav-link text-body-emphasis" id="loc-{{ loc.id }}-tab" data-bs-toggle="tab"
-                    data-bs-target="#loc-{{ loc.id }}" type="button" role="tab">
+        <li class="nav-item">
+            <a href="?location={{ loc.id }}"
+               class="nav-link {% if request.GET.location == loc.id|stringformat:'s' %}active text-success{% else %}text-body-emphasis{% endif %}">
                 {% if loc.location_type == 'home' %}🏠{% else %}🏢{% endif %} {{ loc.name }}
-            </button>
+            </a>
         </li>
         {% endfor %}
     </ul>
 
-    <div class="tab-content border border-top-0 p-4 bg-body shadow-sm rounded-bottom-4 mb-5" id="locationTabsContent">
-        <div class="tab-pane fade show active" id="all" role="tabpanel">
-            {% include 'lab/includes/appliances_table.html' with app_list=appliances show_location=True %}
+    <!-- Bitta yagona jadval (Django orqa fondan to'g'ri filtrlab beradi) -->
+    <div class="border border-top-0 p-4 bg-body shadow-sm rounded-bottom-4 mb-5">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mt-2">
+                <thead class="table-light">
+                <tr>
+                    <th>{% trans "Obyekt" %}</th>
+                    <th>{% trans "Jihoz" %}</th>
+                    <th>{% trans "Soni" %}</th>
+                    <th>{% trans "Quvvat" %}</th>
+                    <th>{% trans "Vaqt" %}</th>
+                    <th>{% trans "Oylik Sarf" %}</th>
+                    <th style="width: 35%;">{% trans "Sun'iy Intellekt Maslahati" %}</th>
+                    <th>{% trans "Amal" %}</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for app in appliances %}
+                <tr>
+                    <td class="text-secondary">{{ app.location.name }}</td>
+                    <td class="fw-bold">{{ app.appliance_name }}</td>
+                    <td>{{ app.quantity }} {% trans "ta" %}</td>
+                    <td>{{ app.power_watts }} {% trans "Vt" %}</td>
+                    <td>{{ app.hours_per_day }} {% trans "soat/kun" %}</td>
+                    <td><span class="badge bg-warning text-dark fs-6">{{ app.monthly_kwh|floatformat:1 }} {% trans "kVt·s" %}</span>
+                    </td>
+
+                    <td>
+                        <small class="text-success">
+                            <i class="text-body-secondary">
+                                {% if app.auto_tip %}
+                                {{ app.auto_tip }}
+                                {% else %}
+                                AI maslahati kutilmoqda...
+                                {% endif %}
+                            </i>
+                        </small>
+                    </td>
+
+                    <td>
+                        <a href="{% url 'delete_record' app.id %}" class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Rostdan ham o\'chirmoqchimisiz?');">🗑</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center py-4 text-muted">{% trans "Bu bo'limda hozircha jihozlar yo'q."
+                        %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-        {% for loc in locations %}
-        <div class="tab-pane fade" id="loc-{{ loc.id }}" role="tabpanel">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mt-2">
-                    <thead class="table-light">
-                    <tr>
-                        <th>{% trans "Jihoz" %}</th>
-                        <th>{% trans "Soni" %}</th>
-                        <th>{% trans "Quvvat" %}</th>
-                        <th>{% trans "Vaqt" %}</th>
-                        <th>{% trans "Oylik Sarf" %}</th>
-                        <th>{% trans "Sun'iy Intellekt Maslahati" %}</th>
-                        <th>{% trans "Amal" %}</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for app in appliances %}
-                    {% if app.location.id == loc.id %}
-                    {% trans "Kutilmoqda..." as kutilmoqda_text %}
-                    <tr>
-                        <td class="fw-bold">{{ app.appliance_name }}</td>
-                        <td>{{ app.quantity }} {% trans "ta" %}</td>
-                        <td>{{ app.power_watts }} {% trans "Vt" %}</td>
-                        <td>{{ app.hours_per_day }} {% trans "soat/kun" %}</td>
-                        <td><span class="badge bg-warning text-dark fs-6">{{ app.monthly_kwh|floatformat:1 }} {% trans "kVt·s" %}</span>
-                        </td>
-                        <td><small class="text-success"><i class="text-body-secondary">{{
-                            app.auto_tip|default:kutilmoqda_text }}</i></small></td>
-                        <td>
-                            <a href="{% url 'delete_record' app.id %}" class="btn btn-sm btn-outline-danger"
-                               onclick="return confirm('{% trans " Rostdan ham o/'chirmoqchimisiz?" %}');">🗑</a>
-                        </td>
-                    </tr>
-                    {% endif %}
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        {% endfor %}
     </div>
     {% endif %}
 

@@ -1,4 +1,6 @@
 import json
+import os
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -7,8 +9,7 @@ from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 import openpyxl
 from openpyxl.styles import Font, Alignment
-
-from config import settings
+import requests
 from .forms import UserRegisterForm, ApplianceForm, LocationForm
 from django.utils.translation import get_language
 from .models import Appliance, Location
@@ -80,6 +81,9 @@ def logout_view(request):
 def dashboard(request):
     locations = Location.objects.filter(user=request.user)
     appliances = Appliance.objects.filter(user=request.user).order_by('-id')
+    selected_location_id = request.GET.get('location')
+    if selected_location_id:
+        appliances = appliances.filter(location_id=selected_location_id)
 
     if request.method == 'POST':
         if 'add_location' in request.POST:
@@ -112,23 +116,26 @@ def dashboard(request):
                 #  YANGI "AQ" KALITLARNI ALDAB O'TISH USULI
                 # ===================================================
                 try:
-                    from google import genai
 
-                    # Kalitni settings.py dan olamiz!
-                    api_key = settings.GEMINI_API_KEY
-                    client = genai.Client(api_key=api_key)
+                    api_key = os.getenv("GEMINI_API_KEY")
 
-                    response = client.models.generate_content(
-                        model='gemini-2.0-flash',
-                        contents=prompt,
-                    )
+                    # URL manzil dinamik qilinib, oxiriga API kalit ulandi
+                    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={api_key}"
+                    headers = {'Content-Type': 'application/json'}
+                    payload = {"contents": [{"parts": [{"text": prompt}]}]}
 
-                    new_app.auto_tip = response.text
+                    response = requests.post(url, headers=headers, json=payload)
+
+                    if response.status_code == 200:
+                        data = response.json()
+                        new_app.auto_tip = data['candidates'][0]['content']['parts'][0]['text']
+                    else:
+                        error_data = response.json()
+                        # Xatoni aniq ko'rish uchun
+                        new_app.auto_tip = f"API Xatosi: {response.status_code} - {error_data}"
 
                 except Exception as e:
-                    kalit_boshi = str(settings.GEMINI_API_KEY)[:15]
-                    new_app.auto_tip = f"Serverdagi kalit: {kalit_boshi}... Xato: {str(e)[:300]}"
-                # ===================================================
+                    new_app.auto_tip = f"Ulanish xatosi: {str(e)[:100]}"
 
                 new_app.save()
                 return redirect('dashboard')

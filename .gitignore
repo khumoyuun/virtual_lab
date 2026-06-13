@@ -31,3 +31,4 @@ media/
 *.njsproj
 *.sln
 *.swp
+*.env
