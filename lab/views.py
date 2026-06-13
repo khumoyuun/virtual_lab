@@ -86,6 +86,14 @@ def dashboard(request):
         appliances = appliances.filter(location_id=selected_location_id)
 
     if request.method == 'POST':
+        if 'delete_all' in request.POST:
+            appliances.delete()  # Jadvalda nima ko'rinib turgan bo'lsa, hammasini o'chiradi
+            return redirect(request.get_full_path())
+        if 'delete_location' in request.POST:
+            loc_id = request.POST.get('location_id')
+            if loc_id:
+                Location.objects.filter(id=loc_id, user=request.user).delete()
+            return redirect('dashboard')
         if 'add_location' in request.POST:
             location_form = LocationForm(request.POST)
             if location_form.is_valid():
@@ -112,9 +120,6 @@ def dashboard(request):
                 else:
                     prompt = f"Mening '{new_app.location.name}' obyektimda {new_app.power_watts} vattli {new_app.appliance_name} kuniga {new_app.hours_per_day} soat ishlaydi. Energiya tejash bo'yicha 1 ta qisqa maslahatni o'zbek tilida ber."
 
-                # ===================================================
-                #  YANGI "AQ" KALITLARNI ALDAB O'TISH USULI
-                # ===================================================
                 try:
 
                     api_key = os.getenv("GEMINI_API_KEY")
