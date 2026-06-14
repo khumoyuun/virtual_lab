@@ -32,3 +32,4 @@ media/
 *.sln
 *.swp
 *.env
+*db.sqlite3
